@@ -1,14 +1,15 @@
-package com.example.demo.student;
+package com.example.demo.student.services;
 
-import com.couchbase.client.core.deps.com.google.common.base.Optional;
+import com.example.demo.student.Student;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.couchbase.core.query.QueryCriteria.where;
 
-public class StudentTemplateService implements StudentService{
+public class StudentTemplateService implements StudentService {
 
     private static final String DESIGN_DOC = "student";
 
@@ -41,11 +42,11 @@ public class StudentTemplateService implements StudentService{
 
     @Override
     public void update(Student student) {
-        template.removeById(Student.class).oneEntity(student);
+        template.removeById(Student.class).one(student.getId());
     }
 
     @Override
     public void delete(Student student) {
-        template.removeById(Student.class).oneEntity(student);
+        template.removeById(Student.class).one(student.getId());
     }
 }

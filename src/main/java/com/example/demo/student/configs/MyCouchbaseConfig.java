@@ -1,4 +1,5 @@
-package com.example.demo.student;
+package com.example.demo.student.configs;
+
 
 import com.couchbase.client.java.query.QueryScanConsistency;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @Configuration
 @EnableCouchbaseRepositories(basePackages = { "com.example.demo.student" })
+
 public class MyCouchbaseConfig extends AbstractCouchbaseConfiguration {
 
     public static final String NODE_LIST = "couchbase://127.0.0.1";

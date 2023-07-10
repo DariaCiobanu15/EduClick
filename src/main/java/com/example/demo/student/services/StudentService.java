@@ -1,9 +1,9 @@
-package com.example.demo.student;
+package com.example.demo.student.services;
 
-import com.couchbase.client.core.api.search.queries.CoreGeoCoordinates;
-import com.couchbase.client.core.deps.com.google.common.base.Optional;
+import com.example.demo.student.Student;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface StudentService {
     Optional<Student> findOne(String id);

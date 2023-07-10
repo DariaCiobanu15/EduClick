@@ -1,5 +1,7 @@
-package com.example.demo.student;
+package com.example.demo.student.services;
 
+import com.example.demo.student.Student;
+import com.example.demo.student.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
