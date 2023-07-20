@@ -1,8 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
-import buttonReducer from '../admin_page/buttonSlice';
+import studentsReducer from '../admin_page/studentsSlice';
 
 export default configureStore({
   reducer: {
-      button: buttonReducer,
+      students: studentsReducer,
   },
 })

@@ -1,17 +1,27 @@
 import React from 'react';
-import Button from 'react-bootstrap/Button';
+import { Routes, Route } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
-import { Buttons } from './admin_page/Buttons';
+import Home from './Pages/Home';
+import AddStud from './Pages/AddStud';
+import StudentsTable from './Pages/StudentsTable';
+import ErrorPage from './Pages/ErrorPage';
+import NavBar from './admin_page/NavBar';
 
 const App = () => {
-
+ 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <h1>Admin's Home Page</h1>
-      <Buttons/>
+    <div>
+      <NavBar/>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/addStud" element={<AddStud/>} />
+        <Route path="/studentsTable" element={<StudentsTable/>} />
+        <Route path="*" element={<ErrorPage />} />
+      </Routes>
+      
     </div>
   );
-}
+};
 
 export default App;
