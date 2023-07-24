@@ -21,7 +21,9 @@ class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.cors()
+                .and()
+                .authorizeRequests()
                 .antMatchers("/api/v1/student*")
                 .hasRole("student")
                 .anyRequest()
