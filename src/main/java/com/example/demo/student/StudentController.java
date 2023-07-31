@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -23,6 +24,10 @@ public class StudentController {
     public List<Student> getStudents(){
         return studentRepositoryService.getStudents();
     }
+    @GetMapping(path = "/{studentId}")
+    public Optional<Student> getStudent(@PathVariable("studentId") String studentId){
+        return studentRepositoryService.getStudent(studentId);
+    }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/add")
     public void registerNewStudent(@RequestBody Student student){
@@ -36,9 +41,13 @@ public class StudentController {
     @PutMapping(path = "{studentId}")
     public void updateStudent(
             @PathVariable("studentId") String studentId,
-            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) Integer year,
+            @RequestParam(required = false) String group,
             @RequestParam(required = false) Integer age){
-        studentRepositoryService.updateStudent(studentId, name, age);
+        studentRepositoryService.updateStudent(studentId, userName, firstName, lastName, year, group, age);
     }
 
 }
