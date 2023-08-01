@@ -24,7 +24,7 @@ public class StudentController {
     public List<Student> getStudents(){
         return studentRepositoryService.getStudents();
     }
-    @GetMapping(path = "/{studentId}")
+    @GetMapping(path = "{studentId}")
     public Optional<Student> getStudent(@PathVariable("studentId") String studentId){
         return studentRepositoryService.getStudent(studentId);
     }
@@ -34,7 +34,7 @@ public class StudentController {
         studentRepositoryService.addNewStudent(student);
     }
 
-    @DeleteMapping(path = "{studentId}")
+    @DeleteMapping(path = "{studentId}/delete")
     public void deleteStudent(@PathVariable("studentId") String studentId){
         studentRepositoryService.deleteStudent(studentId);
     }

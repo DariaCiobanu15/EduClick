@@ -21,9 +21,10 @@ public class StudentRepositoryService {
     @Autowired
     private StudentRepository repo;
 
-    public Optional<Student> getStudent(String id) {
-        return repo.findById(id);
+    public Optional<Student> getStudent(String studentId) {
+        return repo.findById(studentId);
     }
+
     public List<Student> findAll() {
         List<Student> student = new ArrayList<Student>();
         Iterator<Student> it = repo.findAll().iterator();

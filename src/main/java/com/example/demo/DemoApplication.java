@@ -17,23 +17,23 @@ public class DemoApplication {
 
 		ApplicationContext appContext =  SpringApplication.run(DemoApplication.class, args);
 	    StudentRepository studentRep = (StudentRepository) appContext.getBean("studentRepository");
-		studentRep.deleteAll();
-		Credentials credentials = new Credentials();
-		credentials.setAge(22);
-		credentials.setFirstName("Maria");
-		credentials.setLastName("Popescu");
-		UniversityData universityData = new UniversityData();
-		universityData.setGroup("C123");
-		universityData.setYear(3);
-		studentRep.save(new Student(null, "maria123", credentials, universityData, null));
-		credentials.setAge(21);
-		credentials.setFirstName("Ana");
-		credentials.setLastName("Ionescu");
-		studentRep.save(new Student(null, "anaaa", credentials, universityData, null));
-		credentials.setAge(21);
-		credentials.setFirstName("Mihai");
-		credentials.setLastName("Eminescu");
-		studentRep.save(new Student(null, "mihai777", credentials, universityData, null));
+//		studentRep.deleteAll();
+//		Credentials credentials = new Credentials();
+//		credentials.setAge(22);
+//		credentials.setFirstName("Maria");
+//		credentials.setLastName("Popescu");
+//		UniversityData universityData = new UniversityData();
+//		universityData.setGroup("C123");
+//		universityData.setYear(3);
+//		studentRep.save(new Student(null, "maria123", credentials, universityData, null));
+//		credentials.setAge(21);
+//		credentials.setFirstName("Ana");
+//		credentials.setLastName("Ionescu");
+//		studentRep.save(new Student(null, "anaaa", credentials, universityData, null));
+//		credentials.setAge(21);
+//		credentials.setFirstName("Mihai");
+//		credentials.setLastName("Eminescu");
+//		studentRep.save(new Student(null, "mihai777", credentials, universityData, null));
 	}
 
 
