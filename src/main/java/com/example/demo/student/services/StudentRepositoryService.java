@@ -90,25 +90,23 @@ public class StudentRepositoryService {
             }
             stud.setUserName(userName);
         }
+        Credentials credentials = stud.getCredentials();
+        UniversityData universityData = stud.getUniversityData();
         if(age != null) {
-            Credentials credentials = stud.getCredentials();
             credentials.setAge(age);
         }
         if(firstName != null) {
-            Credentials credentials = stud.getCredentials();
             credentials.setFirstName(firstName);
         }
         if(lastName != null) {
-            Credentials credentials = stud.getCredentials();
             credentials.setLastName(lastName);
         }
         if(year != null) {
-            UniversityData universityData = stud.getUniversityData();
             universityData.setYear(year);
         }
         if(group != null) {
-            UniversityData universityData = stud.getUniversityData();
             universityData.setGroup(group);
         }
+        repo.save(stud);
     }
 }

@@ -10,6 +10,7 @@ import java.util.Optional;
 
 
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(path = "api/v1/student")
 public class StudentController {
 
@@ -38,7 +39,7 @@ public class StudentController {
     public void deleteStudent(@PathVariable("studentId") String studentId){
         studentRepositoryService.deleteStudent(studentId);
     }
-    @PutMapping(path = "{studentId}")
+    @PutMapping(path = "{studentId}/update")
     public void updateStudent(
             @PathVariable("studentId") String studentId,
             @RequestParam(required = false) String userName,
