@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,16 +40,11 @@ public class StudentController {
     public void deleteStudent(@PathVariable("studentId") String studentId){
         studentRepositoryService.deleteStudent(studentId);
     }
-    @PutMapping(path = "{studentId}/update")
-    public void updateStudent(
-            @PathVariable("studentId") String studentId,
-            @RequestParam(required = false) String userName,
-            @RequestParam(required = false) String firstName,
-            @RequestParam(required = false) String lastName,
-            @RequestParam(required = false) Integer year,
-            @RequestParam(required = false) String group,
-            @RequestParam(required = false) Integer age){
-        studentRepositoryService.updateStudent(studentId, userName, firstName, lastName, year, group, age);
+
+    @PutMapping(path = "/update/{studentId}")
+    public void updateStudent(@PathVariable("studentId") String studentId, @Valid @RequestBody Student student){
+        student.setId(studentId);
+        studentRepositoryService.update(student);
     }
 
 }
