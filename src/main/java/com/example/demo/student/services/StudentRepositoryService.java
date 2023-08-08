@@ -1,13 +1,10 @@
 package com.example.demo.student.services;
 
-import com.example.demo.student.Student;
-import com.example.demo.student.StudentRepository;
-import com.example.demo.student.helperObj.Credentials;
-import com.example.demo.student.helperObj.UniversityData;
+import com.example.demo.student.componentObj.Student;
+import com.example.demo.student.repositories.student.StudentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -19,94 +16,56 @@ import java.util.Optional;
 public class StudentRepositoryService {
 
     @Autowired
-    private StudentRepository repo;
+    private StudentRepository studentRepository;
 
     public Optional<Student> getStudent(String studentId) {
-        return repo.findById(studentId);
+        return studentRepository.findById(studentId);
     }
 
     public List<Student> findAll() {
         List<Student> student = new ArrayList<Student>();
-        Iterator<Student> it = repo.findAll().iterator();
+        Iterator<Student> it = studentRepository.findAll().iterator();
         while(it.hasNext()) {
             student.add(it.next());
         }
         return student;
     }
 
-    public List<Student> findByFirstName(String userName) {
-        return repo.findByUserName(userName);
-    }
-
     public void create(Student student) {
-        repo.save(student);
+        studentRepository.save(student);
     }
 
     public void update(Student student) {
-        repo.save(student);
+        studentRepository.save(student);
     }
 
     public void delete(Student student) {
-        repo.delete(student);
+        studentRepository.delete(student);
     }
 
     public List<Student> getStudents(){
-        return (List<Student>) repo.findAll();
+        return (List<Student>) studentRepository.findAll();
     }
 
     public void addNewStudent(Student student) {
         System.out.println(student);
-        List<Student> existing_users = (List<Student>) repo.findAll();
+        List<Student> existing_users = (List<Student>) studentRepository.findAll();
         List<String> user_names = new ArrayList<String>();
         for(Student s: existing_users){
-            user_names.add(s.getUserName());
+            user_names.add(s.getUsername());
         }
-        if(user_names.contains(student.getUserName())){
+        if(user_names.contains(student.getUsername())){
             throw new IllegalStateException("username taken");
         } else {
-            repo.save(student);
+            studentRepository.save(student);
         }
     }
     public void deleteStudent(String studentId){
-        boolean exists = repo.existsById(studentId);
+        boolean exists = studentRepository.existsById(studentId);
         if(!exists) {
             throw new IllegalStateException("Student with id" + studentId + "doesn't exist");
         }
-        repo.deleteById(studentId);
+        studentRepository.deleteById(studentId);
     }
 
-    @Transactional
-    public void updateStudent(String studentId, String userName, String firstName, String lastName, Integer year, String group, Integer age) {
-        Student stud = repo.findById(studentId).orElseThrow( () ->
-            new IllegalStateException("Student with id" + studentId + "doesn't exist"));
-        if(userName != null) {
-            List<Student> existing_users = (List<Student>) repo.findAll();
-            List<String> user_names = new ArrayList<String>();
-            for(Student s: existing_users){
-                user_names.add(s.getUserName());
-            }
-            if(user_names.contains(userName)) {
-                throw new IllegalStateException("username taken");
-            }
-            stud.setUserName(userName);
-        }
-        Credentials credentials = stud.getCredentials();
-        UniversityData universityData = stud.getUniversityData();
-        if(age != null) {
-            credentials.setAge(age);
-        }
-        if(firstName != null) {
-            credentials.setFirstName(firstName);
-        }
-        if(lastName != null) {
-            credentials.setLastName(lastName);
-        }
-        if(year != null) {
-            universityData.setYear(year);
-        }
-        if(group != null) {
-            universityData.setGroup(group);
-        }
-        repo.save(stud);
-    }
 }

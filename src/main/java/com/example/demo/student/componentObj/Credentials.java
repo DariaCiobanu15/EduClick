@@ -1,20 +1,21 @@
-package com.example.demo.student.helperObj;
+package com.example.demo.student.componentObj;
 
 import lombok.*;
 import org.springframework.data.couchbase.core.mapping.Field;
-
 import javax.validation.constraints.NotNull;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
-public class UniversityData {
+public class Credentials {
     @Field
     @NotNull
-    private Integer year;
+    private String firstName;
     @Field
     @NotNull
-    private String group;
+    private String lastName;
+    @Field
+    @NotNull
+    private Integer age;
 }

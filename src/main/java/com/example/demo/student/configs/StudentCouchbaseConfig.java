@@ -1,6 +1,4 @@
 package com.example.demo.student.configs;
-
-
 import com.couchbase.client.java.query.QueryScanConsistency;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +8,8 @@ import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepos
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @Configuration
-@EnableCouchbaseRepositories(basePackages = { "com.example.demo.student" })
-
-public class MyCouchbaseConfig extends AbstractCouchbaseConfiguration {
+@EnableCouchbaseRepositories(basePackages = { "com.example.demo.student.repositories.student" })
+public class StudentCouchbaseConfig extends AbstractCouchbaseConfiguration {
 
     public static final String NODE_LIST = "couchbase://127.0.0.1";
     public static final String BUCKET_NAME = "students_bucket";
