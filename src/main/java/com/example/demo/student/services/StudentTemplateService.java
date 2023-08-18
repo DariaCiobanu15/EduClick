@@ -35,6 +35,11 @@ public class StudentTemplateService implements StudentService {
     }
 
     @Override
+    public Student findByUsername(String username) {
+        return (Student) template.findByQuery(Student.class).matching(where("username").is(username));
+    }
+
+    @Override
     public void create(Student student) {
         template.insertById(Student.class).one(student);
     }

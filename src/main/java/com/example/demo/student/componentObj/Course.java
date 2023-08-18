@@ -30,11 +30,12 @@ public class Course {
     private String studyHall;
     @Field
     @NotNull
-    private Time hour;
+    private String hour;
+//    @Field
+//    @NotNull
+//    private List<String> weekdays;
     @Field
     @NotNull
-    private List<String> weekdays;
-    @Field
-    @NotNull
-    private Teacher teacher;
+//    private Teacher teacher;
+    private String teacher;
 }

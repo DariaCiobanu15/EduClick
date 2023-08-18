@@ -31,12 +31,15 @@ public class Student {
     private String password;
     @Field
     @NotNull
+    private String email;
+    @Field
+    @NotNull
     private Credentials credentials;
     @Field
     @NotNull
     private UniversityData universityData;
     @Field
-    private List<String> courseIds;
-
-    private List<Course> courseList = new ArrayList<>();
+    private List<String> courseIds; // the courses that the student is enrolled at
+    @Field
+    private List<Course> courseList = new ArrayList<>(); //all courses
 }

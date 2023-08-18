@@ -1,7 +1,10 @@
 package com.example.demo.student.services;
 
+import com.example.demo.student.componentObj.Course;
 import com.example.demo.student.componentObj.Student;
 import com.example.demo.student.repositories.student.StudentRepository;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -12,9 +15,11 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@Getter
+@Setter
 @Qualifier("StudentRepositoryService")
 public class StudentRepositoryService {
-
+    public List<Course> allCourses = new ArrayList<Course>();
     @Autowired
     private StudentRepository studentRepository;
 
@@ -54,8 +59,10 @@ public class StudentRepositoryService {
         for(Student s: existing_users){
             user_names.add(s.getUsername());
         }
-        if(user_names.contains(student.getUsername())){
+        if(user_names.contains(student.getUsername())) {
             throw new IllegalStateException("username taken");
+        }else if(!student.getEmail().contains("@")){
+            throw new IllegalStateException("incorrect email");
         } else {
             studentRepository.save(student);
         }
