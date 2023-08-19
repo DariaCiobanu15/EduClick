@@ -1,5 +1,6 @@
 package com.example.demo.student.controllers;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import com.example.demo.student.componentObj.Course;
 import com.example.demo.student.componentObj.Student;
 import com.example.demo.student.services.StudentRepositoryService;
@@ -9,8 +10,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 
 @RestController
@@ -24,8 +27,16 @@ public class StudentController {
     @Autowired
     public StudentController(StudentRepositoryService studentRepositoryService) {
         this.studentRepositoryService = studentRepositoryService;
-        Course newCourse = new Course(null,"Course1", "AN1", "12:00", "PR");
-        this.studentRepositoryService.getAllCourses().add(newCourse);
+        String id = UUID.randomUUID().toString();
+        Course newCourse = new Course( id ,"Operating Systems", "AN1", "12:00", "PR");
+
+        List<Course> courseList = this.studentRepositoryService.getAllCourses();
+        if (courseList == null) {
+            courseList = new ArrayList<>(); // Initialize a new list if it's null
+            this.studentRepositoryService.setAllCourses(courseList); // Update the courses in the service
+        }
+
+        courseList.add(newCourse); // Add the new course to the list
     }
 
     @GetMapping(path = "/all")
@@ -40,7 +51,7 @@ public class StudentController {
     @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/add")
     public void registerNewStudent(@RequestBody Student student){
-        student.setCourseList(studentRepositoryService.allCourses);
+        student.setCourseList(studentRepositoryService.getAllCourses());
         studentRepositoryService.addNewStudent(student);
     }
 
@@ -59,17 +70,21 @@ public class StudentController {
     @PreAuthorize("hasRole('ROLE_admin')")
     @PutMapping(path = "/registerCourse")
     public void registerCourse(@Valid @RequestBody Course course){
+        System.out.println(course);
         List<Student> studentList = studentRepositoryService.getStudents();
-        studentRepositoryService.getAllCourses().add(course);
+        List<Course> courseList = studentRepositoryService.getAllCourses();
+        courseList.add(course);
         for(int i=0; i<studentList.size(); i++){
-            studentList.get(i).getCourseList().add(course);
+            studentList.get(i).setCourseList(courseList);
             studentRepositoryService.update(studentList.get(i));
         }
+        this.studentRepositoryService.setAllCourses(courseList);
     }
 
     @GetMapping(path = "/allCourses")
     public List<Course> getAllCourses(){
-        return studentRepositoryService.getAllCourses();
+        List<Student> students = (List<Student>) studentRepositoryService.findAll();
+        return students.get(0).getCourseList();
     }
 
 }

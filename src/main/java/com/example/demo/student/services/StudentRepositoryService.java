@@ -19,7 +19,8 @@ import java.util.Optional;
 @Setter
 @Qualifier("StudentRepositoryService")
 public class StudentRepositoryService {
-    public List<Course> allCourses = new ArrayList<Course>();
+
+    private List<Course> allCourses;
     @Autowired
     private StudentRepository studentRepository;
 

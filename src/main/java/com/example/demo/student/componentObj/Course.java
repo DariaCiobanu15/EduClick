@@ -8,6 +8,7 @@ import org.springframework.data.couchbase.core.mapping.id.GeneratedValue;
 import javax.validation.constraints.NotNull;
 import java.sql.Time;
 import java.util.List;
+import java.util.UUID;
 
 import static org.springframework.data.couchbase.core.mapping.id.GenerationStrategy.UNIQUE;
 
@@ -18,10 +19,9 @@ import static org.springframework.data.couchbase.core.mapping.id.GenerationStrat
 @ToString
 @Document
 public class Course {
-    @GeneratedValue(strategy = UNIQUE)
     @Id
     @Field
-    private String id;
+    private String id = UUID.randomUUID().toString();
     @Field
     @NotNull
     private String name;
