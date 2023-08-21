@@ -8,8 +8,8 @@ import org.springframework.data.couchbase.repository.config.EnableCouchbaseRepos
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
 @Configuration
-//@EnableCouchbaseRepositories({ "com.example.demo.student.repositories.*" })
-public class StudentCouchbaseConfig extends AbstractCouchbaseConfiguration {
+@EnableCouchbaseRepositories({ "com.example.demo.student.repositories.*" })
+public class CouchbaseConfig extends AbstractCouchbaseConfiguration {
 
     public static final String NODE_LIST = "couchbase://127.0.0.1";
     public static final String BUCKET_NAME = "students_bucket";

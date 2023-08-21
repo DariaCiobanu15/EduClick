@@ -19,8 +19,6 @@ import java.util.Optional;
 @Setter
 @Qualifier("StudentRepositoryService")
 public class StudentRepositoryService {
-
-    private List<Course> allCourses;
     @Autowired
     private StudentRepository studentRepository;
 
