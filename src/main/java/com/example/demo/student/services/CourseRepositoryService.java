@@ -13,13 +13,11 @@ import java.util.Optional;
 @Qualifier("CourseRepositoryService")
 public class CourseRepositoryService {
 
-//    @Autowired
     private final CourseRepository courseRepository;
     @Autowired
     public CourseRepositoryService(CourseRepository courseRepository) {
         this.courseRepository = courseRepository;
     }
-
 
     public Optional<Course> getCourse(String id) {
         return courseRepository.findCourseById(id);
@@ -36,7 +34,7 @@ public class CourseRepositoryService {
     public List<Course> getCourses() {
         return (List<Course>) courseRepository.findAll();
     }
-    public void addNewCourse(Course course){
+    public void addNewCourse(Course course) {
         List<Course> existing_courses = (List<Course>) courseRepository.findAll();
         List<String> course_names = new ArrayList<String>();
         for(Course c: existing_courses){
@@ -48,7 +46,7 @@ public class CourseRepositoryService {
             courseRepository.save(course);
         }
     }
-    public void deleteCourse(String id){
+    public void deleteCourse(String id) {
         boolean exists = courseRepository.existsById(id);
         if(!exists) {
             throw new IllegalStateException("course doesn't exist!");

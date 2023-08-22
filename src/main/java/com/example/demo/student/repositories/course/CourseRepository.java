@@ -1,7 +1,5 @@
 package com.example.demo.student.repositories.course;
-
 import com.example.demo.student.componentObj.Course;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;

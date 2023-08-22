@@ -1,6 +1,7 @@
 package com.example.demo.student.componentObj;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.couchbase.core.mapping.Document;
 import org.springframework.data.couchbase.core.mapping.Field;
 import org.springframework.data.couchbase.core.mapping.id.GeneratedValue;
 
@@ -14,6 +15,7 @@ import static org.springframework.data.couchbase.core.mapping.id.GenerationStrat
 @Getter
 @Setter
 @ToString
+@Document
 public class Teacher {
     @GeneratedValue(strategy = UNIQUE)
     @Id
