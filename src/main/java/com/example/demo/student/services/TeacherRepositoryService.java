@@ -25,6 +25,7 @@ public class TeacherRepositoryService {
     public void create(Teacher teacher) {
         teacherRepository.save(teacher);
     }
+    public void update(Teacher teacher) {teacherRepository.save(teacher); }
     public void delete(Teacher teacher) {
         teacherRepository.delete(teacher);
     }
