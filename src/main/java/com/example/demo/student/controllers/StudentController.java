@@ -60,6 +60,17 @@ public class StudentController {
         studentRepositoryService.deleteStudent(studentId);
     }
 
+    @PreAuthorize("hasRole('ROLE_student')")
+    @PutMapping(path = "/updatePass/{studentId}")
+    public void updateStudentPassword(@PathVariable("studentId") String studentId, @Valid @RequestBody String newPassword){
+        Optional<Student> optionalStudent = studentRepositoryService.getStudent(studentId);
+        if (optionalStudent.isPresent()) {
+            Student student = optionalStudent.get();
+            student.setPassword(newPassword);
+            studentRepositoryService.update(student);
+        }
+    }
+
     @PreAuthorize("hasRole('ROLE_admin')")
     @PutMapping(path = "/update/{studentId}")
     public void updateStudent(@PathVariable("studentId") String studentId, @Valid @RequestBody Student student){
@@ -69,10 +80,19 @@ public class StudentController {
 
     @PreAuthorize("hasRole('ROLE_admin')")
     @PutMapping(path = "/update/{studentId}/enroll")
-    public void enrollStudent(@PathVariable("studentId") String studentId, @Valid @RequestBody List<String> courseIds){
-        Optional<Student> student = studentRepositoryService.getStudent(studentId);
-//        student.setCourseIds(courseIds);
-//        studentRepositoryService.update(student);
+    public void enrollStudent(@PathVariable("studentId") String studentId, @Valid @RequestBody List<Course> courseList){
+        Optional<Student> optionalStudent = studentRepositoryService.getStudent(studentId);
+        if (optionalStudent.isPresent()) {
+            Student student = optionalStudent.get();
+            List<String> ids = new ArrayList<>();
+            for(int i=0; i<courseList.size(); i++){
+                ids.add(courseList.get(i).getId());
+            }
+            student.setCourseIds(ids);
+            studentRepositoryService.update(student);
+        } else {
+            return;
+        }
     }
 
 }

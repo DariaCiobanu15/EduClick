@@ -40,6 +40,5 @@ public class Student {
     private UniversityData universityData;
     @Field
     private List<String> courseIds; // the courses that the student is enrolled at
-//    @Field
-//    private List<Course> courseList = new ArrayList<>(); //all courses
+
 }
