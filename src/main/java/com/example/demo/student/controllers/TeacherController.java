@@ -50,7 +50,7 @@ public class TeacherController {
     }
 
     @PutMapping(path = "/updatePass/{teacherId}")
-    public void updateStudentPassword(@PathVariable("teacherId") String teacherId, @Valid @RequestBody String newPassword){
+    public void updateTeacherPassword(@PathVariable("teacherId") String teacherId, @Valid @RequestBody String newPassword){
         Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
         if (optionalTeacher.isPresent()) {
             Teacher teacher = optionalTeacher.get();
