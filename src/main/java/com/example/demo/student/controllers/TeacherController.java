@@ -1,10 +1,12 @@
 package com.example.demo.student.controllers;
 
 import com.example.demo.student.componentObj.Course;
+import com.example.demo.student.componentObj.Student;
 import com.example.demo.student.componentObj.Teacher;
 import com.example.demo.student.services.TeacherRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -45,6 +47,16 @@ public class TeacherController {
     public void updateTeacher(@PathVariable("teacherId") String teacherId, @Valid @RequestBody Teacher teacher) {
         teacher.setId(teacherId);
         teacherRepositoryService.update(teacher);
+    }
+
+    @PutMapping(path = "/updatePass/{teacherId}")
+    public void updateStudentPassword(@PathVariable("teacherId") String teacherId, @Valid @RequestBody String newPassword){
+        Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
+        if (optionalTeacher.isPresent()) {
+            Teacher teacher = optionalTeacher.get();
+            teacher.setPassword(newPassword);
+            teacherRepositoryService.update(teacher);
+        }
     }
 
 }
