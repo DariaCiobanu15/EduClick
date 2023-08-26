@@ -10,6 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,6 +57,21 @@ public class TeacherController {
             Teacher teacher = optionalTeacher.get();
             teacher.setPassword(newPassword);
             teacherRepositoryService.update(teacher);
+        }
+    }
+    @PutMapping(path = "/update/{teacherId}/enroll")
+    public void enrollTeacher(@PathVariable("teacherId") String teacherId, @Valid @RequestBody List<Course> courseList) {
+        Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
+        if (optionalTeacher.isPresent()) {
+            Teacher teacher = optionalTeacher.get();
+            List<String> ids = new ArrayList<>();
+            for(int i=0; i<courseList.size(); i++) {
+                ids.add(courseList.get(i).getId());
+            }
+            teacher.setCourseIds(ids);
+            teacherRepositoryService.update(teacher);
+        } else {
+            return;
         }
     }
 
