@@ -70,8 +70,6 @@ public class TeacherController {
             }
             teacher.setCourseIds(ids);
             teacherRepositoryService.update(teacher);
-        } else {
-            return;
         }
     }
 

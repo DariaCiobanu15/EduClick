@@ -45,4 +45,23 @@ public class CourseController {
         course.setId(courseId);
         courseRepositoryService.update(course);
     }
+
+    @PutMapping(path = "/updateDescription/{courseId}")
+    public void updateDescription(@PathVariable("courseId") String courseId, @Valid @RequestBody String description){
+        Optional<Course> optionalCourse = courseRepositoryService.getCourse(courseId);
+        if(optionalCourse.isPresent()) {
+            Course course = optionalCourse.get();
+            course.setDescription(description);
+            courseRepositoryService.update(course);
+        }
+    }
+    @PutMapping(path = "/updatePosts/{courseId}")
+    public void updatePosts(@PathVariable("courseId") String courseId, @Valid @RequestBody String post){
+        Optional<Course> optionalCourse = courseRepositoryService.getCourse(courseId);
+        if(optionalCourse.isPresent()) {
+            Course course = optionalCourse.get();
+            course.getPosts().add(post); //poate trebuie setPosts
+            courseRepositoryService.update(course);
+        }
+    }
 }
