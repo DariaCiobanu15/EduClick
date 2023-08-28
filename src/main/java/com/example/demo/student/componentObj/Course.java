@@ -35,6 +35,7 @@ public class Course {
     @NotNull
     private List<String> weekdays;
     @Field
-    @NotNull
-    private String teacherId;
+    private String description;
+    @Field
+    private List<String> posts;
 }
