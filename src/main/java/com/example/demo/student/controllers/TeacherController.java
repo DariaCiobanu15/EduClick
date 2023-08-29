@@ -24,6 +24,7 @@ public class TeacherController {
     public TeacherController(TeacherRepositoryService teacherRepositoryService) {
         this.teacherRepositoryService = teacherRepositoryService;
     }
+
     @GetMapping(path = "/all")
     public List<Teacher> getTeachers(){
         return teacherRepositoryService.getTeachers();
@@ -34,22 +35,25 @@ public class TeacherController {
         return teacherRepositoryService.getTeacher(teacherId);
     }
 
+    @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/add")
     public void registerNewTeacher(@RequestBody Teacher teacher){
         teacherRepositoryService.addNewTeacher(teacher);
     }
 
+    @PreAuthorize("hasRole('ROLE_admin')")
     @DeleteMapping(path = "{teacherId}/delete")
     public void deleteTeacher(@PathVariable("teacherId") String teacherId) {
         teacherRepositoryService.deleteCourse(teacherId);
     }
-
+    @PreAuthorize("hasRole('ROLE_admin')")
     @PutMapping(path = "{teacherId}/update")
     public void updateTeacher(@PathVariable("teacherId") String teacherId, @Valid @RequestBody Teacher teacher) {
         teacher.setId(teacherId);
         teacherRepositoryService.update(teacher);
     }
 
+    @PreAuthorize("hasRole('ROLE_teacher')")
     @PutMapping(path = "/updatePass/{teacherId}")
     public void updateTeacherPassword(@PathVariable("teacherId") String teacherId, @Valid @RequestBody String newPassword){
         Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
@@ -59,6 +63,7 @@ public class TeacherController {
             teacherRepositoryService.update(teacher);
         }
     }
+    @PreAuthorize("hasRole('ROLE_admin')")
     @PutMapping(path = "/update/{teacherId}/enroll")
     public void enrollTeacher(@PathVariable("teacherId") String teacherId, @Valid @RequestBody List<Course> courseList) {
         Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);

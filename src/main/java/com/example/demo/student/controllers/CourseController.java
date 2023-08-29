@@ -5,6 +5,7 @@ import com.example.demo.student.componentObj.Post;
 import com.example.demo.student.services.CourseRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -35,21 +36,25 @@ public class CourseController {
         return courseRepositoryService.getCourse(courseId);
     }
 
+    @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, path = "/add")
     public void registerNewCourse(@RequestBody Course course){
         courseRepositoryService.addNewCourse(course);
     }
 
+    @PreAuthorize("hasRole('ROLE_admin')")
     @DeleteMapping(path = "{courseId}/delete")
     public void deleteCourse(@PathVariable("courseId") String courseId){
         courseRepositoryService.deleteCourse(courseId);
     }
+    @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
     @PutMapping(path = "/update/{courseId}")
     public void updateCourse(@PathVariable("courseId") String courseId, @Valid @RequestBody Course course){
         course.setId(courseId);
         courseRepositoryService.update(course);
     }
 
+    @PreAuthorize("hasRole('ROLE_teacher')")
     @PutMapping(path = "/updateDescription/{courseId}")
     public void updateDescription(@PathVariable("courseId") String courseId, @Valid @RequestBody String description){
         Optional<Course> optionalCourse = courseRepositoryService.getCourse(courseId);
@@ -59,6 +64,7 @@ public class CourseController {
             courseRepositoryService.update(course);
         }
     }
+    @PreAuthorize("hasRole('ROLE_teacher')")
     @PutMapping(path = "/updatePosts/{courseId}")
     public void updatePosts(@PathVariable("courseId") String courseId, @Valid @RequestBody Post post){
         Optional<Course> optionalCourse = courseRepositoryService.getCourse(courseId);

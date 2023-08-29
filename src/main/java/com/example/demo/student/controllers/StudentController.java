@@ -78,7 +78,7 @@ public class StudentController {
         studentRepositoryService.update(student);
     }
 
-    @PreAuthorize("hasRole('ROLE_admin')")
+    @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
     @PutMapping(path = "/update/{studentId}/enroll")
     public void enrollStudent(@PathVariable("studentId") String studentId, @Valid @RequestBody List<Course> courseList){
         Optional<Student> optionalStudent = studentRepositoryService.getStudent(studentId);
