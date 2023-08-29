@@ -37,5 +37,5 @@ public class Course {
     @Field
     private String description;
     @Field
-    private List<String> posts;
+    private List<Post> posts;
 }

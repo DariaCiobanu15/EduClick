@@ -1,12 +1,16 @@
 package com.example.demo.student.controllers;
 
 import com.example.demo.student.componentObj.Course;
+import com.example.demo.student.componentObj.Post;
 import com.example.demo.student.services.CourseRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,12 +60,39 @@ public class CourseController {
         }
     }
     @PutMapping(path = "/updatePosts/{courseId}")
-    public void updatePosts(@PathVariable("courseId") String courseId, @Valid @RequestBody String post){
+    public void updatePosts(@PathVariable("courseId") String courseId, @Valid @RequestBody Post post){
         Optional<Course> optionalCourse = courseRepositoryService.getCourse(courseId);
         if(optionalCourse.isPresent()) {
             Course course = optionalCourse.get();
-            course.getPosts().add(post); //poate trebuie setPosts
+            Date date = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("MMMM");
+            SimpleDateFormat dayFormat = new SimpleDateFormat("dd");
+            SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
+            String monthName = dateFormat.format(date);
+            String day = dayFormat.format(date);
+            String year = yearFormat.format(date);
+            post.setMonth(monthName);
+            post.setDay(day);
+            post.setYear(year);
+
+            if(course.getPosts() == null){
+                List<Post> pposts = new ArrayList<>();
+                pposts.add(post);
+                course.setPosts(pposts);
+            }
+            course.getPosts().add(post);
             courseRepositoryService.update(course);
         }
+    }
+
+    @GetMapping(path = "/getPosts/{courseId}")
+    public List<Post> getPosts(@PathVariable("courseId") String courseId) {
+        Optional<Course> optionalCourse = courseRepositoryService.getCourse(courseId);
+        if(optionalCourse.isPresent()) {
+            Course course = optionalCourse.get();
+            List<Post> posts = course.getPosts();
+            return posts;
+        }
+        else return null;
     }
 }
