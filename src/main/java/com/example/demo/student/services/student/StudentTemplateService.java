@@ -1,5 +1,6 @@
-package com.example.demo.student.services;
+package com.example.demo.student.services.student;
 import com.example.demo.student.componentObj.Student;
+import com.example.demo.student.services.student.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 

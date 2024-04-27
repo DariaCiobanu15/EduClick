@@ -2,7 +2,8 @@ package com.example.demo.student.controllers;
 
 import com.example.demo.student.componentObj.Course;
 import com.example.demo.student.componentObj.Student;
-import com.example.demo.student.services.StudentRepositoryService;
+import com.example.demo.student.services.course.CourseRepositoryService;
+import com.example.demo.student.services.student.StudentRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,10 +22,12 @@ import java.util.Optional;
 public class StudentController {
 
     private final StudentRepositoryService studentRepositoryService;
+    private final CourseRepositoryService courseRepositoryService;
 
     @Autowired
-    public StudentController(StudentRepositoryService studentRepositoryService) {
+    public StudentController(StudentRepositoryService studentRepositoryService, CourseRepositoryService courseRepositoryService) {
         this.studentRepositoryService = studentRepositoryService;
+        this.courseRepositoryService = courseRepositoryService;
     }
 
     @GetMapping(path = "/all")
@@ -84,9 +87,13 @@ public class StudentController {
         Optional<Student> optionalStudent = studentRepositoryService.getStudent(studentId);
         if (optionalStudent.isPresent()) {
             Student student = optionalStudent.get();
-            List<String> ids = new ArrayList<>();
+            List<String> ids = student.getCourseIds();
+            if (ids == null) {
+                ids = new ArrayList<>();
+            }
             for(int i=0; i<courseList.size(); i++){
                 ids.add(courseList.get(i).getId());
+                courseRepositoryService.addStudentToCourse(courseList.get(i).getId(), studentId);
             }
             student.setCourseIds(ids);
             studentRepositoryService.update(student);

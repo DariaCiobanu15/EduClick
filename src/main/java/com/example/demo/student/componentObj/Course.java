@@ -27,15 +27,18 @@ public class Course {
     private String name;
     @Field
     @NotNull
-    private String studyHall;
+    private String teacherId;
     @Field
-    @NotNull
-    private String hour;
-    @Field
-    @NotNull
-    private List<String> weekdays;
+    private List<String> bookingIds;
     @Field
     private String description;
     @Field
-    private List<Post> posts;
+    private List<String> postsIds;
+    @Field
+    private List<String> labTeachersIds;
+    @Field
+    private List<String> labStudyHallsIds;
+    @Field
+    private List<String> studentsIds;
+
 }

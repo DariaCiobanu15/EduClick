@@ -15,7 +15,4 @@ public class Credentials {
     @Field
     @NotNull
     private String lastName;
-    @Field
-    @NotNull
-    private Integer age;
 }

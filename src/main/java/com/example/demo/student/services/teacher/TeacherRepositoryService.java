@@ -1,4 +1,4 @@
-package com.example.demo.student.services;
+package com.example.demo.student.services.teacher;
 
 import com.example.demo.student.componentObj.Teacher;
 import com.example.demo.student.repositories.teacher.TeacherRepository;

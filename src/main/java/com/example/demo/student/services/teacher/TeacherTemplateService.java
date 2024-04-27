@@ -1,6 +1,7 @@
-package com.example.demo.student.services;
+package com.example.demo.student.services.teacher;
 
 import com.example.demo.student.componentObj.Teacher;
+import com.example.demo.student.services.teacher.TeacherService;
 import org.springframework.data.couchbase.core.CouchbaseTemplate;
 
 import java.util.List;
@@ -8,7 +9,7 @@ import java.util.Optional;
 
 import static org.springframework.data.couchbase.core.query.QueryCriteria.where;
 
-public class TeacherTemplateService implements TeacherService{
+public class TeacherTemplateService implements TeacherService {
     private static final String DESIGN_DOC = "teacher";
     private CouchbaseTemplate template;
 

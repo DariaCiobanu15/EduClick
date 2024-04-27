@@ -1,4 +1,4 @@
-package com.example.demo.student.services;
+package com.example.demo.student.services.course;
 
 import com.example.demo.student.componentObj.Course;
 import com.example.demo.student.repositories.course.CourseRepository;
@@ -43,6 +43,7 @@ public class CourseRepositoryService {
         if(course_names.contains(course.getName())){
             throw new IllegalStateException("course's name taken");
         } else {
+            course.setStudentsIds(new ArrayList<String>());
             courseRepository.save(course);
         }
     }
@@ -52,5 +53,24 @@ public class CourseRepositoryService {
             throw new IllegalStateException("course doesn't exist!");
         }
         courseRepository.deleteById(id);
+    }
+
+    public void addStudentToCourse(String id, String studentId) {
+        Optional<Course> course = courseRepository.findCourseById(id);
+        if(course.isPresent()) {
+            Course c = course.get();
+            if(c.getStudentsIds() == null) {
+                c.setStudentsIds(new ArrayList<String>());
+            }
+            if(c.getStudentsIds().contains(studentId)) {
+                throw new IllegalStateException("student already in course");
+            }
+            ArrayList<String> students = (ArrayList<String>) c.getStudentsIds();
+            students.add(studentId);
+            c.setStudentsIds(students);
+            courseRepository.save(c);
+        } else {
+            throw new IllegalStateException("course doesn't exist!");
+        }
     }
 }

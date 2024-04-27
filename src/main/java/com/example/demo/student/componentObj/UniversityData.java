@@ -17,4 +17,7 @@ public class UniversityData {
     @Field
     @NotNull
     private String group;
+    @Field
+    @NotNull
+    private String subGroup;
 }

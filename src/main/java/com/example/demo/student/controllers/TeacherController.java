@@ -1,9 +1,8 @@
 package com.example.demo.student.controllers;
 
 import com.example.demo.student.componentObj.Course;
-import com.example.demo.student.componentObj.Student;
 import com.example.demo.student.componentObj.Teacher;
-import com.example.demo.student.services.TeacherRepositoryService;
+import com.example.demo.student.services.teacher.TeacherRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -75,6 +74,7 @@ public class TeacherController {
             }
             teacher.setCourseIds(ids);
             teacherRepositoryService.update(teacher);
+
         }
     }
 

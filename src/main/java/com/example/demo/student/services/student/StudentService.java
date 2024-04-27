@@ -1,4 +1,4 @@
-package com.example.demo.student.services;
+package com.example.demo.student.services.student;
 import com.example.demo.student.componentObj.Student;
 import java.util.List;
 import java.util.Optional;

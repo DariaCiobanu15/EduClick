@@ -1,4 +1,4 @@
-package com.example.demo.student.services;
+package com.example.demo.student.services.student;
 
 import com.example.demo.student.componentObj.Course;
 import com.example.demo.student.componentObj.Student;
@@ -63,6 +63,7 @@ public class StudentRepositoryService {
         }else if(!student.getEmail().contains("@")){
             throw new IllegalStateException("incorrect email");
         } else {
+            student.setCourseIds(new ArrayList<String>());
             studentRepository.save(student);
         }
     }
