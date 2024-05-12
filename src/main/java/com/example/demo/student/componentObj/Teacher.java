@@ -35,4 +35,6 @@ public class Teacher {
     private Credentials credentials;
     @Field
     private List<String> courseIds;
+    @Field
+    private List<String> labIds;
 }

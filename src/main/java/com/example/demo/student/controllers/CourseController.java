@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -82,7 +83,7 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")
-    @PostMapping(path = "/assignTeacher/{courseId}/{teacherId}")
+    @PutMapping(path = "/assignTeacher/{courseId}/{teacherId}")
     public void assignTeacherToCourse(@PathVariable String courseId, @PathVariable String teacherId) {
         Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
         Optional<Teacher> teacherOptional = teacherRepositoryService.getTeacher(teacherId);
@@ -94,28 +95,40 @@ public class CourseController {
         }
     }
 
-    @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
-    @PostMapping(path = "/enroll/{courseId}/{studentId}")
-    public void enrollStudentToCourse(@PathVariable String courseId, @PathVariable String studentId) {
-        Optional<Course> course = courseRepositoryService.getCourse(courseId);
-        Optional<Student> student = studentRepositoryService.getStudent(studentId);
+    @PreAuthorize("hasRole('ROLE_admin')")
+    @PutMapping(path = "/assignLabTeacher/{courseId}/{teacherId}")
+    public void assignLabTeacherToCourse(@PathVariable String courseId, @PathVariable String teacherId) {
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
+        Optional<Teacher> teacherOptional = teacherRepositoryService.getTeacher(teacherId);
 
-        if (!course.isPresent() || !student.isPresent()) {
-            return;
-        } else {
-            Course courseToUpdate = course.get();
-
-            if (!courseToUpdate.getStudentsIds().contains(studentId)) {
-                courseToUpdate.getStudentsIds().add(studentId);
-                courseRepositoryService.update(courseToUpdate);
-            }
-            Student studentToUpdate = student.get();
-            if (!studentToUpdate.getCourseIds().contains(courseId)) {
-                studentToUpdate.getCourseIds().add(courseId);
-                studentRepositoryService.update(studentToUpdate);
-            }
+        if (courseOptional.isPresent() && teacherOptional.isPresent()) {
+            Course course = courseOptional.get();
+            course.setLabTeacherId(teacherId);
+            courseRepositoryService.update(course);
         }
     }
+
+    @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
+    @PutMapping(path = "/enroll/{studentId}")
+    @Transactional
+    public void enrollStudentToCourse(@Valid @RequestBody Course course, @PathVariable String studentId) {
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(course.getId());
+        System.out.println(studentId);
+        if (courseOptional.isPresent()) {
+            Course c = courseOptional.get();
+            System.out.println(c);
+            ArrayList<String> students = (ArrayList<String>) c.getStudentsIds();
+            if (students.contains(studentId)) {
+                throw new IllegalStateException("student already in course");
+            }
+            students.add(studentId);
+            c.setStudentsIds(students);
+            System.out.println(c.getStudentsIds());
+            courseRepositoryService.update(c);
+        }
+    }
+
+
     @GetMapping(path = "/{courseId}/posts")
     public ResponseEntity<List<Post>> getPostsByCourse(@PathVariable String courseId) {
         Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);

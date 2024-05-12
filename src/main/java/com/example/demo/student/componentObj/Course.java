@@ -35,9 +35,7 @@ public class Course {
     @Field
     private List<String> postsIds;
     @Field
-    private List<String> labTeachersIds;
-    @Field
-    private List<String> labStudyHallsIds;
+    private String labTeacherId;
     @Field
     private List<String> studentsIds;
 

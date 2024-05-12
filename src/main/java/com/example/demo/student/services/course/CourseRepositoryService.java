@@ -5,6 +5,8 @@ import com.example.demo.student.repositories.course.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -23,9 +25,14 @@ public class CourseRepositoryService {
         return courseRepository.findCourseById(id);
     }
     public void create(Course course) {
+        if(course.getStudentsIds() == null) {
+            course.setStudentsIds(new ArrayList<String>());
+        }
         courseRepository.save(course);
     }
+    @Transactional
     public void update(Course course) {
+
         courseRepository.save(course);
     }
     public void delete(Course course){
@@ -44,6 +51,7 @@ public class CourseRepositoryService {
             throw new IllegalStateException("course's name taken");
         } else {
             course.setStudentsIds(new ArrayList<String>());
+            course.setBookingIds(new ArrayList<String>());
             courseRepository.save(course);
         }
     }
@@ -68,6 +76,25 @@ public class CourseRepositoryService {
             ArrayList<String> students = (ArrayList<String>) c.getStudentsIds();
             students.add(studentId);
             c.setStudentsIds(students);
+            courseRepository.save(c);
+        } else {
+            throw new IllegalStateException("course doesn't exist!");
+        }
+    }
+
+    public void addBookingToCourse(String courseId, String id) {
+        Optional<Course> course = courseRepository.findCourseById(courseId);
+        if(course.isPresent()) {
+            Course c = course.get();
+            if(c.getBookingIds()== null) {
+                c.setBookingIds(new ArrayList<String>());
+            }
+            if(c.getBookingIds().contains(id)) {
+                throw new IllegalStateException("booking already in course");
+            }
+            ArrayList<String> bookings = (ArrayList<String>) c.getBookingIds();
+            bookings.add(id);
+            c.setBookingIds(bookings);
             courseRepository.save(c);
         } else {
             throw new IllegalStateException("course doesn't exist!");

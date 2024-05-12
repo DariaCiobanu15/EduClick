@@ -55,6 +55,8 @@ public class StudyHallRepositoryService {
         if (studyHall_names.contains(studyHall.getName())) {
             throw new IllegalStateException("Study Hall's name taken");
         } else {
+            List<String> bookings = new ArrayList<String>();
+            studyHall.setBookingIds(bookings);
             studyHallRepository.save(studyHall);
         }
     }
@@ -63,4 +65,9 @@ public class StudyHallRepositoryService {
     public List<StudyHall> getStudyHalls() {
         return (List<StudyHall>) studyHallRepository.findAll();
     }
+
+    public List<StudyHall> getAllByCapacityGreaterThanEqual(int size) {
+        return studyHallRepository.findAllByCapacityGreaterThanEqual(size);
+    }
+
 }

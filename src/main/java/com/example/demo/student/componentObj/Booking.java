@@ -25,13 +25,12 @@ public class Booking {
     @NotNull
     private String courseId;
     @Field
-    @NotNull
     private String weekday;
     @Field
-    @NotNull
     private Integer hour;
     @Field
-    @NotNull
     private String studyHallId;
+    @Field
+    private boolean isLab;
 
 }

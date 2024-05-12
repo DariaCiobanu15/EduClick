@@ -5,8 +5,11 @@ import com.example.demo.student.componentObj.Student;
 import com.example.demo.student.services.course.CourseRepositoryService;
 import com.example.demo.student.services.student.StudentRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -22,12 +25,10 @@ import java.util.Optional;
 public class StudentController {
 
     private final StudentRepositoryService studentRepositoryService;
-    private final CourseRepositoryService courseRepositoryService;
 
     @Autowired
-    public StudentController(StudentRepositoryService studentRepositoryService, CourseRepositoryService courseRepositoryService) {
+    public StudentController(StudentRepositoryService studentRepositoryService) {
         this.studentRepositoryService = studentRepositoryService;
-        this.courseRepositoryService = courseRepositoryService;
     }
 
     @GetMapping(path = "/all")
@@ -83,6 +84,7 @@ public class StudentController {
 
     @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
     @PutMapping(path = "/update/{studentId}/enroll")
+    @Transactional
     public void enrollStudent(@PathVariable("studentId") String studentId, @Valid @RequestBody List<Course> courseList){
         Optional<Student> optionalStudent = studentRepositoryService.getStudent(studentId);
         if (optionalStudent.isPresent()) {
@@ -91,9 +93,12 @@ public class StudentController {
             if (ids == null) {
                 ids = new ArrayList<>();
             }
-            for(int i=0; i<courseList.size(); i++){
-                ids.add(courseList.get(i).getId());
-                courseRepositoryService.addStudentToCourse(courseList.get(i).getId(), studentId);
+            for (Course course : courseList) {
+                if (ids.contains(course.getId())) {
+                    throw new IllegalStateException("student already in course");
+                } else {
+                    ids.add(course.getId());
+                }
             }
             student.setCourseIds(ids);
             studentRepositoryService.update(student);

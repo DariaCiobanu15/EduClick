@@ -36,51 +36,6 @@ public class BookingRepositoryService {
         bookingRepository.save(booking);
     }
 
-    public Booking createBookingForCourse(String courseId, String weekday, Integer hour) {
-        Course course = courseRepository.findById(courseId).orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
-        // Sorting all the suitable studyHalls to find the smallest one that could fit the students
-        List<StudyHall> suitableHalls = studyHallRepository.findAllByCapacityGreaterThanEqual(course.getStudentsIds().size());
-        suitableHalls.sort(Comparator.comparing(StudyHall::getCapacity));
-
-        for (StudyHall hall : suitableHalls) {
-            if (isHallAvailable(hall, weekday, hour)) {
-                Booking booking = new Booking();
-                booking.setCourseId(courseId);
-                booking.setStudyHallId(hall.getId());
-                booking.setWeekday(weekday);
-                booking.setHour(hour);
-                bookingRepository.save(booking);
-
-                updateCourseAndStudyHallWithBooking(course, hall, booking);
-                return booking;
-            }
-        }
-        throw new IllegalStateException("No available study hall found");
-    }
-
-    private void updateCourseAndStudyHallWithBooking(Course course, StudyHall hall, Booking booking) {
-        course.getBookingIds().add(booking.getId());
-        courseRepository.save(course);
-
-        hall.getBookingIds().add(booking.getId());
-        studyHallRepository.save(hall);
-    }
-
-    private boolean isHallAvailable(StudyHall hall, String weekday, Integer hour) {
-        List<Booking> bookings = bookingRepository.findAllByStudyHallId(hall.getId());
-
-        // Check if there's any booking that conflicts with the desired weekday and hour.
-        for (Booking booking : bookings) {
-            if (booking.getWeekday().equalsIgnoreCase(weekday) && booking.getHour().equals(hour)) {
-                // Found a conflicting booking, so the hall is not available.
-                return false;
-            }
-        }
-
-        // No conflicting bookings found, so the hall is available.
-        return true;
-    }
-
     public void update(Booking booking) {
         bookingRepository.save(booking);
     }

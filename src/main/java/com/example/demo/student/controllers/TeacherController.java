@@ -68,13 +68,34 @@ public class TeacherController {
         Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
         if (optionalTeacher.isPresent()) {
             Teacher teacher = optionalTeacher.get();
-            List<String> ids = new ArrayList<>();
-            for(int i=0; i<courseList.size(); i++) {
-                ids.add(courseList.get(i).getId());
+            List<String> ids = teacher.getCourseIds();
+            if (ids == null) {
+                ids = new ArrayList<>();
+            }
+            for (Course course : courseList) {
+                ids.add(course.getId());
             }
             teacher.setCourseIds(ids);
             teacherRepositoryService.update(teacher);
 
+        }
+    }
+
+    @PreAuthorize("hasRole('ROLE_admin')")
+    @PutMapping(path = "/update/{teacherId}/enrollToLab")
+    public void enrollTeacherToLab(@PathVariable("teacherId") String teacherId, @Valid @RequestBody List<Course> labsList) {
+        Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
+        if (optionalTeacher.isPresent()) {
+            Teacher teacher = optionalTeacher.get();
+            List<String> ids = teacher.getLabIds();
+            if (ids == null) {
+                ids = new ArrayList<>();
+            }
+            for (Course lab : labsList) {
+                ids.add(lab.getId());
+            }
+            teacher.setLabIds(ids);
+            teacherRepositoryService.update(teacher);
         }
     }
 

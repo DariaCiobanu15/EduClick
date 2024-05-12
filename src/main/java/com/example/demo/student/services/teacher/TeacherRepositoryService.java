@@ -41,6 +41,8 @@ public class TeacherRepositoryService {
         if(teacher_usernames.contains(teacher.getUsername())) {
             throw new IllegalStateException("username taken");
         } else {
+            ArrayList<String> courseIds = new ArrayList<String>();
+            teacher.setCourseIds(courseIds);
             teacherRepository.save(teacher);
         }
     }
