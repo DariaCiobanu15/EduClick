@@ -34,8 +34,21 @@ public class PostTemplateService implements PostService {
 
     @Override
     public List<Post> findAll() {
+        // findAll but conversing content field from type [java.lang.String] to type [byte]
+        for (Post post : template.findByQuery(Post.class).all()) {
+            post.setContent(post.getContent());
+        }
         return template.findByQuery(Post.class).all();
     }
+
+    public List<Post> myFindAll() {
+        // findAll but conversing content field from type [java.lang.String] to type [byte]
+        for (Post post : template.findByQuery(Post.class).all()) {
+            post.setContent(post.getContent());
+        }
+        return template.findByQuery(Post.class).all();
+    }
+
 
     @Autowired
     public void setCouchbaseTemplate(CouchbaseTemplate template) {

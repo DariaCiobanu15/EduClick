@@ -50,4 +50,6 @@ public class CouchbaseConfig extends AbstractCouchbaseConfiguration {
     public ValidatingCouchbaseEventListener validatingCouchbaseEventListener() {
         return new ValidatingCouchbaseEventListener(localValidatorFactoryBean());
     }
+
+
 }

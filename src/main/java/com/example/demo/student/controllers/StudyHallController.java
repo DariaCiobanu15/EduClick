@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -24,6 +25,12 @@ public class StudyHallController {
     public List<StudyHall> getStudyHalls(){
         return studyHallRepositoryService.getStudyHalls();
     }
+
+    @GetMapping(path = "/{studyHallId}")
+    public Optional<StudyHall> getStudyHall(@PathVariable("studyHallId") String studyHallId){
+        return studyHallRepositoryService.getStudyHall(studyHallId);
+    }
+
 
     @PreAuthorize("hasRole('ROLE_admin')")
     @PostMapping(path = "/add")

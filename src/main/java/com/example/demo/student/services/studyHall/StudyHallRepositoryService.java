@@ -70,4 +70,15 @@ public class StudyHallRepositoryService {
         return studyHallRepository.findAllByCapacityGreaterThanEqual(size);
     }
 
+    public void addBookingToStudyHall(String id, String id1) {
+        Optional<StudyHall> studyHall = studyHallRepository.findById(id);
+        if (studyHall.isPresent()) {
+            StudyHall s = studyHall.get();
+            if (s.getBookingIds() == null) {
+                s.setBookingIds(new ArrayList<String>());
+            }
+            s.getBookingIds().add(id1);
+            studyHallRepository.save(s);
+        }
+    }
 }

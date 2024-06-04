@@ -36,6 +36,8 @@ public class PostRepositoryService {
         postRepository.delete(post);
     }
     public List<Post> getPosts() {
+        System.out.println("PostRepositoryService.getPosts");
+        System.out.println(postRepository.findAll());
         return (List<Post>) postRepository.findAll();
     }
     public void addNewPost(Post post) {
@@ -48,4 +50,6 @@ public class PostRepositoryService {
         }
         postRepository.deleteById(id);
     }
+
+
 }

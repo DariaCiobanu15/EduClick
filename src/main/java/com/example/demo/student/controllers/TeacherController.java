@@ -99,4 +99,30 @@ public class TeacherController {
         }
     }
 
+    @GetMapping(path = "/{teacherId}/myCourses")
+    public List<String> getCoursesFromTeacher(@PathVariable("teacherId") String teacherId){
+        Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
+        if (optionalTeacher.isPresent()) {
+            Teacher teacher = optionalTeacher.get();
+            List<String> ids = teacher.getCourseIds();
+            System.out.println(ids);
+            return ids;
+        } else {
+            return null;
+        }
+    }
+
+    @GetMapping(path = "/{teacherId}/myLabs")
+    public List<String> getLabsFromTeacher(@PathVariable("teacherId") String teacherId){
+        Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
+        if (optionalTeacher.isPresent()) {
+            Teacher teacher = optionalTeacher.get();
+            List<String> ids = teacher.getLabIds();
+            System.out.println(ids);
+            return ids;
+        } else {
+            return null;
+        }
+    }
+
 }

@@ -43,17 +43,11 @@ public class CourseRepositoryService {
     }
     public void addNewCourse(Course course) {
         List<Course> existing_courses = (List<Course>) courseRepository.findAll();
-        List<String> course_names = new ArrayList<String>();
-        for(Course c: existing_courses){
-            course_names.add(c.getName());
-        }
-        if(course_names.contains(course.getName())){
-            throw new IllegalStateException("course's name taken");
-        } else {
-            course.setStudentsIds(new ArrayList<String>());
-            course.setBookingIds(new ArrayList<String>());
-            courseRepository.save(course);
-        }
+
+        course.setStudentsIds(new ArrayList<String>());
+        course.setBookingIds(new ArrayList<String>());
+        courseRepository.save(course);
+
     }
     public void deleteCourse(String id) {
         boolean exists = courseRepository.existsById(id);
@@ -99,5 +93,13 @@ public class CourseRepositoryService {
         } else {
             throw new IllegalStateException("course doesn't exist!");
         }
+    }
+
+    public List<Course> getCoursesByYear(Integer year) {
+        return courseRepository.findAllByYear(year);
+    }
+
+    public List<Course> getCoursesByGroupAndYear(String group, Integer year) {
+        return courseRepository.findAllByGroupAndYear(group, year);
     }
 }

@@ -32,5 +32,7 @@ public class Booking {
     private String studyHallId;
     @Field
     private boolean isLab;
+    @Field
+    private String subGroup;
 
 }

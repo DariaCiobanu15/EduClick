@@ -31,12 +31,18 @@ public class Course {
     @Field
     private List<String> bookingIds;
     @Field
+    private List<String> labBookingIds;
+    @Field
     private String description;
     @Field
     private List<String> postsIds;
     @Field
-    private String labTeacherId;
+    private List<String> labTeacherIds;
     @Field
     private List<String> studentsIds;
+    @Field
+    private Integer year;
+    @Field
+    private String group;
 
 }

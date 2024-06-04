@@ -2,6 +2,7 @@ package com.example.demo.student.controllers;
 
 import com.example.demo.student.componentObj.Course;
 import com.example.demo.student.componentObj.Student;
+import com.example.demo.student.componentObj.UniversityData;
 import com.example.demo.student.services.course.CourseRepositoryService;
 import com.example.demo.student.services.student.StudentRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,10 +26,12 @@ import java.util.Optional;
 public class StudentController {
 
     private final StudentRepositoryService studentRepositoryService;
+    private final CourseRepositoryService courseRepositoryService;
 
     @Autowired
-    public StudentController(StudentRepositoryService studentRepositoryService) {
+    public StudentController(StudentRepositoryService studentRepositoryService, CourseRepositoryService courseRepositoryService) {
         this.studentRepositoryService = studentRepositoryService;
+        this.courseRepositoryService = courseRepositoryService;
     }
 
     @GetMapping(path = "/all")
@@ -46,6 +49,7 @@ public class StudentController {
         if (optionalStudent.isPresent()) {
             Student student = optionalStudent.get();
             List<String> ids = student.getCourseIds();
+            System.out.println(ids);
             return ids;
         } else {
             return null;
@@ -106,5 +110,86 @@ public class StudentController {
             return;
         }
     }
+
+    @PreAuthorize("hasRole('ROLE_admin')")
+    @PutMapping(path = "/update/enrollYear")
+    public void enrollYearToCourse(@Valid @RequestBody Course course){
+        List<Student> students = studentRepositoryService.getStudents();
+        List<String> studentsIds = course.getStudentsIds();
+        if(studentsIds == null) {
+            studentsIds = new ArrayList<>();
+        }
+        System.out.println(students);
+        int year = course.getYear();
+        for (Student student : students) {
+            UniversityData data = student.getUniversityData();
+            if (data.getYear() == year) {
+                List<String> ids = student.getCourseIds();
+                if (ids == null) {
+                    ids = new ArrayList<>();
+                }
+                ids.add(course.getId());
+                student.setCourseIds(ids);
+                System.out.println(student.getCourseIds());
+                studentsIds.add(student.getId());
+                studentRepositoryService.update(student);
+            }
+        }
+        course.setStudentsIds(studentsIds);
+        courseRepositoryService.update(course);
+    }
+
+    @PreAuthorize("hasRole('ROLE_admin')")
+    @PutMapping(path = "/update/enrollGroupFromYear")
+    public void enrollGroupFromYearToCourse(@Valid @RequestBody Course course){
+        List<Student> students = studentRepositoryService.getStudents();
+        List<String> studentsIds = course.getStudentsIds();
+        if(studentsIds == null) {
+            studentsIds = new ArrayList<>();
+        }
+        System.out.println(students);
+        int year = course.getYear();
+        String group = course.getGroup();
+        for (Student student : students) {
+            UniversityData data = student.getUniversityData();
+            if (data.getYear() == year && data.getGroup().equals(group)) {
+                List<String> ids = student.getCourseIds();
+                if (ids == null) {
+                    ids = new ArrayList<>();
+                }
+                ids.add(course.getId());
+                student.setCourseIds(ids);
+                System.out.println(student.getCourseIds());
+                studentsIds.add(student.getId());
+                studentRepositoryService.update(student);
+            }
+        }
+        course.setStudentsIds(studentsIds);
+        courseRepositoryService.update(course);
+    }
+
+    @PreAuthorize("hasRole('ROLE_admin')")
+    @PostMapping(path = "/addMany")
+    public ResponseEntity<?> addManyStudents(@RequestBody List<Student> students){
+        for (Student student : students) {
+            studentRepositoryService.addNewStudent(student);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(path = "/{studentId}/subGroup")
+    public ResponseEntity<?> getSubGroup(@PathVariable("studentId") String studentId) {
+        Optional<Student> optionalStudent = studentRepositoryService.getStudent(studentId);
+        if (optionalStudent.isPresent()) {
+            Student student = optionalStudent.get();
+            UniversityData data = student.getUniversityData();
+            String group = data.getGroup();
+            String subGroup = data.getSubGroup();
+            return ResponseEntity.ok(subGroup);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    }
+
+
 
 }

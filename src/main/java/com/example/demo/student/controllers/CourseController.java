@@ -1,12 +1,11 @@
 package com.example.demo.student.controllers;
 
-import com.example.demo.student.componentObj.Course;
-import com.example.demo.student.componentObj.Post;
-import com.example.demo.student.componentObj.Student;
-import com.example.demo.student.componentObj.Teacher;
+import com.example.demo.student.componentObj.*;
+import com.example.demo.student.services.booking.BookingRepositoryService;
 import com.example.demo.student.services.course.CourseRepositoryService;
 import com.example.demo.student.services.post.PostRepositoryService;
 import com.example.demo.student.services.student.StudentRepositoryService;
+import com.example.demo.student.services.studyHall.StudyHallRepositoryService;
 import com.example.demo.student.services.teacher.TeacherRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,18 +27,23 @@ public class CourseController {
     private final CourseRepositoryService courseRepositoryService;
     private final StudentRepositoryService studentRepositoryService;
     private final TeacherRepositoryService teacherRepositoryService;
-
     private final PostRepositoryService postRepositoryService;
+    private final BookingRepositoryService bookingRepositoryService;
+    private final StudyHallRepositoryService studyHallRepositoryService;
 
     @Autowired
     public CourseController(CourseRepositoryService courseRepositoryService,
                             StudentRepositoryService studentRepositoryService,
                             TeacherRepositoryService teacherRepositoryService,
-                            PostRepositoryService postRepositoryService) {
+                            PostRepositoryService postRepositoryService,
+                            BookingRepositoryService bookingRepositoryService,
+                            StudyHallRepositoryService studyHallRepositoryService) {
         this.courseRepositoryService = courseRepositoryService;
         this.studentRepositoryService = studentRepositoryService;
         this.teacherRepositoryService = teacherRepositoryService;
         this.postRepositoryService = postRepositoryService;
+        this.bookingRepositoryService = bookingRepositoryService;
+        this.studyHallRepositoryService = studyHallRepositoryService;
     }
 
     @GetMapping(path = "/all")
@@ -96,16 +100,19 @@ public class CourseController {
     }
 
     @PreAuthorize("hasRole('ROLE_admin')")
-    @PutMapping(path = "/assignLabTeacher/{courseId}/{teacherId}")
-    public void assignLabTeacherToCourse(@PathVariable String courseId, @PathVariable String teacherId) {
+    @PutMapping(path = "/assignLabTeachers/{courseId}/{teacherId}")
+    public void assignLabTeachersToCourse(@PathVariable String courseId, @PathVariable String teacherId) {
         Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
         Optional<Teacher> teacherOptional = teacherRepositoryService.getTeacher(teacherId);
-
-        if (courseOptional.isPresent() && teacherOptional.isPresent()) {
-            Course course = courseOptional.get();
-            course.setLabTeacherId(teacherId);
-            courseRepositoryService.update(course);
-        }
+        courseOptional.ifPresent(course -> {
+            if (teacherOptional.isPresent()) {
+                Teacher teacher = teacherOptional.get();
+                List<String> labTeachers = course.getLabTeacherIds();
+                labTeachers.add(teacherId);
+                course.setLabTeacherIds(labTeachers);
+                courseRepositoryService.update(course);
+            }
+        });
     }
 
     @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
@@ -146,6 +153,98 @@ public class CourseController {
         }
 
         return new ResponseEntity<>(posts, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/{courseId}/bookings")
+    public ResponseEntity<List<Booking>> getBookingsByCourse(@PathVariable String courseId) {
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
+        if (!courseOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Course course = courseOptional.get();
+        List<String> bookingIds = course.getBookingIds();
+        List<Booking> bookings = new ArrayList<>();
+
+        for (String bookingId : bookingIds) {
+            Optional<Booking> booking = bookingRepositoryService.getBooking(bookingId);
+            booking.ifPresent(bookings::add);
+        }
+
+        return new ResponseEntity<>(bookings, HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/{courseId}/courseBooking")
+    public ResponseEntity<Booking> getFirstBookingByCourse(@PathVariable String courseId) {
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
+        if (!courseOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Course course = courseOptional.get();
+        List<String> bookingIds = course.getBookingIds();
+        if (bookingIds.size() == 0) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Optional<Booking> booking = bookingRepositoryService.getBooking(bookingIds.get(0));
+        return booking.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping(path = "/{courseId}/teacher")
+    public ResponseEntity<Teacher> getTeacherByCourse(@PathVariable String courseId) {
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
+        if (!courseOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Course course = courseOptional.get();
+        Optional<Teacher> teacher = teacherRepositoryService.getTeacher(course.getTeacherId());
+
+        return teacher.map(value -> new ResponseEntity<>(value, HttpStatus.OK)).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping(path = "/{courseId}/studyHall")
+    public ResponseEntity<String> getStudyHallNameByCourseId(@PathVariable("courseId") String courseId){
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
+        if (!courseOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Course course = courseOptional.get();
+        Optional<Booking> booking = bookingRepositoryService.getBooking(course.getBookingIds().get(0));
+        if (!booking.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        Optional<StudyHall> studyHall = studyHallRepositoryService.getStudyHall(booking.get().getStudyHallId());
+        if (!studyHall.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(studyHall.get().getName(), HttpStatus.OK);
+    }
+
+    @GetMapping(path = "/{courseId}/myLab/{subgroup}")
+    public ResponseEntity<Booking> getLabBookingBySubgroup(@PathVariable("courseId") String courseId, @PathVariable("subgroup") String subgroup) {
+
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
+        if (!courseOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        Course course = courseOptional.get();
+        List<String> bookingIds = course.getBookingIds();
+        for (String bookingId : bookingIds) {
+            Optional<Booking> booking = bookingRepositoryService.getBooking(bookingId);
+            if (booking.isPresent()) {
+                if (subgroup.equals(booking.get().getSubGroup())) {
+                    System.out.println("Returning booking ID: " + booking.get().getId());
+                    return new ResponseEntity<>(booking.get(), HttpStatus.OK);
+                }
+            }
+        }
+
+        System.out.println("No match found for subgroup: " + subgroup);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
 }
