@@ -1,6 +1,7 @@
 package com.example.demo.student.services.course;
 
 import com.example.demo.student.componentObj.Course;
+import com.example.demo.student.componentObj.Post;
 import com.example.demo.student.repositories.course.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -101,5 +102,24 @@ public class CourseRepositoryService {
 
     public List<Course> getCoursesByGroupAndYear(String group, Integer year) {
         return courseRepository.findAllByGroupAndYear(group, year);
+    }
+
+    public void addPostIdToCourse(String courseId, String postId) {
+        Optional<Course> course = courseRepository.findCourseById(courseId);
+        if(course.isPresent()) {
+            Course c = course.get();
+            if(c.getPostsIds() == null) {
+                c.setPostsIds(new ArrayList<String>());
+            }
+            if(c.getPostsIds().contains(postId)) {
+                throw new IllegalStateException("post already in course");
+            }
+            ArrayList<String> posts = (ArrayList<String>) c.getPostsIds();
+            posts.add(postId);
+            c.setPostsIds(posts);
+            courseRepository.save(c);
+        } else {
+            throw new IllegalStateException("course doesn't exist!");
+        }
     }
 }

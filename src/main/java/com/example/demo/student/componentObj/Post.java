@@ -1,4 +1,6 @@
 package com.example.demo.student.componentObj;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.couchbase.core.mapping.Document;
@@ -48,14 +50,25 @@ public class Post {
     private String contentType;
 
     @Field
-    private byte[] content = new byte[0];
+    @JsonIgnore
+    private byte[] content;
 
-    public byte[] getContent() {
-        return Base64.getDecoder().decode(content);
+//    public byte[] getContent() {
+//        return Base64.getDecoder().decode(content);
+//    }
+//
+//    public void setContent(byte[] content) {
+//        this.content = content;
+//    }
+
+    @JsonProperty("base64Content")
+    public String getBase64Content() {
+        return content != null ? Base64.getEncoder().encodeToString(content) : null;
     }
 
-    public void setContent(byte[] content) {
-        this.content = content;
+    public void setBase64Content(String base64Content) {
+        this.content = base64Content != null ? Base64.getDecoder().decode(base64Content) : null;
     }
+
 
 }

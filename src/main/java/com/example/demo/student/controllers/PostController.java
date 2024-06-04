@@ -1,6 +1,7 @@
 package com.example.demo.student.controllers;
 
 import com.example.demo.student.componentObj.Post;
+import com.example.demo.student.services.course.CourseRepositoryService;
 import com.example.demo.student.services.post.PostRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -13,20 +14,19 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.Valid;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping(path = "api/v1/student/course/posts")
 public class PostController {
     private final PostRepositoryService postRepositoryService;
+    private final CourseRepositoryService courseRepositoryService;
 
     @Autowired
-    public PostController(PostRepositoryService postRepositoryService) {
+    public PostController(PostRepositoryService postRepositoryService, CourseRepositoryService courseRepositoryService) {
         this.postRepositoryService = postRepositoryService;
+        this.courseRepositoryService = courseRepositoryService;
     }
 
     @GetMapping(path = "/all")
@@ -58,7 +58,8 @@ public class PostController {
                         @RequestParam("month") String month,
                         @RequestParam("year") String year,
                         @RequestParam("type") String type,
-                        @RequestParam("isActivity") boolean isActivity) throws IOException {
+                        @RequestParam("isActivity") boolean isActivity,
+                        @RequestParam("content") Optional<String> content) throws IOException {
         Post post = new Post();
         post.setText(text);
         post.setTitle(title);
@@ -70,13 +71,15 @@ public class PostController {
         post.setActivity(isActivity);
 
         if (file.isPresent() && !file.get().isEmpty()) {
-            System.out.println("File name: " + file.get().getOriginalFilename());
-            System.out.println(Arrays.toString(file.get().getBytes()));
             post.setFileName(file.get().getOriginalFilename());
             post.setContentType(file.get().getContentType());
             post.setContent(file.get().getBytes());
+        } else if (content.isPresent() && !content.get().isEmpty()) {
+            post.setContent(Base64.getDecoder().decode(content.get()));
         }
+
         postRepositoryService.addNewPost(post);
+        courseRepositoryService.addPostIdToCourse(courseId, post.getId());
         return post;
     }
 
@@ -98,16 +101,13 @@ public class PostController {
     @GetMapping(path = "/{courseId}/getPosts")
     public ResponseEntity<List<Post>> getPostsFromCourse(@PathVariable("courseId") String courseId) {
         System.out.println("KKKKKKK");
-        List<Post> allPosts = postRepositoryService.getPosts();// asta apare gol dupa ce bag un post
-        List<Post> postsFromCourse = new ArrayList<>();
-        System.out.println(allPosts);
-        for (Post post : allPosts) {
-            if (post.getCourseId().equals(courseId)) {
-                System.out.println("PPPPPPPP");
-                postsFromCourse.add(post);
-            }
+        List<String> postsIds = courseRepositoryService.getCourse(courseId).get().getPostsIds();
+        List<Post> posts = new ArrayList<>();
+        for (String postId : postsIds) {
+            Optional<Post> post = postRepositoryService.getPost(postId);
+            post.ifPresent(posts::add);
         }
-        return ResponseEntity.ok(postsFromCourse);
+        return ResponseEntity.ok(posts);
     }
 
 //    @GetMapping(path = "/{courseId}/getPostsPreview")
