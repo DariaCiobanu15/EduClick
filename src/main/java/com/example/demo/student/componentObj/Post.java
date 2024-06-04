@@ -48,18 +48,14 @@ public class Post {
     private String contentType;
 
     @Field
-    private byte[] content;
+    private byte[] content = new byte[0];
+
+    public byte[] getContent() {
+        return Base64.getDecoder().decode(content);
+    }
 
     public void setContent(byte[] content) {
         this.content = content;
-    }
-
-    public void setContent(String content) {
-        this.content = Base64.getDecoder().decode(content);
-    }
-
-    public String getContent() {
-        return Base64.getEncoder().encodeToString(content);
     }
 
 }

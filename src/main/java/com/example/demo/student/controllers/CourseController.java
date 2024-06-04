@@ -78,6 +78,7 @@ public class CourseController {
     @PreAuthorize("hasRole('ROLE_teacher')")
     @PutMapping(path = "/updateDescription/{courseId}")
     public void updateDescription(@PathVariable("courseId") String courseId, @Valid @RequestBody String description){
+        System.out.println(description);
         Optional<Course> optionalCourse = courseRepositoryService.getCourse(courseId);
         if(optionalCourse.isPresent()) {
             Course course = optionalCourse.get();

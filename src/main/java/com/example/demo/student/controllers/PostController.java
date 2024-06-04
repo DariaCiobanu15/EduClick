@@ -51,14 +51,14 @@ public class PostController {
     @PostMapping(path = "/addPost")
     @PreAuthorize("hasRole('ROLE_teacher') || hasRole('ROLE_admin')")
     public Post addPost(@RequestParam("file") Optional<MultipartFile> file,
-                                          @RequestParam("text") String text,
-                                          @RequestParam("title") String title,
-                                          @RequestParam("courseId") String courseId,
-                                          @RequestParam("day") String day,
-                                          @RequestParam("month") String month,
-                                          @RequestParam("year") String year,
-                                          @RequestParam("type") String type,
-                                          @RequestParam("isActivity") boolean isActivity) throws IOException {
+                        @RequestParam("text") String text,
+                        @RequestParam("title") String title,
+                        @RequestParam("courseId") String courseId,
+                        @RequestParam("day") String day,
+                        @RequestParam("month") String month,
+                        @RequestParam("year") String year,
+                        @RequestParam("type") String type,
+                        @RequestParam("isActivity") boolean isActivity) throws IOException {
         Post post = new Post();
         post.setText(text);
         post.setTitle(title);
@@ -95,20 +95,20 @@ public class PostController {
         return ResponseEntity.ok("Post deleted successfully.");
     }
 
-//    @GetMapping(path = "/{courseId}/getPosts")
-//    public ResponseEntity<List<Post>> getPostsFromCourse(@PathVariable("courseId") String courseId) {
-//        System.out.println("KKKKKKK");
-//        List<Post> allPosts = postRepositoryService.getPosts();// asta apare gol dupa ce bag un post
-//        List<Post> postsFromCourse = new ArrayList<>();
-//        System.out.println(allPosts);
-//        for (Post post : allPosts) {
-//            if (post.getCourseId().equals(courseId)) {
-//                System.out.println("PPPPPPPP");
-//                postsFromCourse.add(post);
-//            }
-//        }
-//        return ResponseEntity.ok(postsFromCourse);
-//    }
+    @GetMapping(path = "/{courseId}/getPosts")
+    public ResponseEntity<List<Post>> getPostsFromCourse(@PathVariable("courseId") String courseId) {
+        System.out.println("KKKKKKK");
+        List<Post> allPosts = postRepositoryService.getPosts();// asta apare gol dupa ce bag un post
+        List<Post> postsFromCourse = new ArrayList<>();
+        System.out.println(allPosts);
+        for (Post post : allPosts) {
+            if (post.getCourseId().equals(courseId)) {
+                System.out.println("PPPPPPPP");
+                postsFromCourse.add(post);
+            }
+        }
+        return ResponseEntity.ok(postsFromCourse);
+    }
 
 //    @GetMapping(path = "/{courseId}/getPostsPreview")
 //    public ResponseEntity<List<Post>> getPostsFromCourse(@PathVariable("courseId") String courseId) {
