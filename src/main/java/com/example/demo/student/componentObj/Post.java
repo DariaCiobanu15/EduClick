@@ -1,5 +1,7 @@
 package com.example.demo.student.componentObj;
+
 import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonIgnore;
+import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonInclude;
 import com.couchbase.client.core.deps.com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -7,9 +9,8 @@ import org.springframework.data.couchbase.core.mapping.Document;
 import org.springframework.data.couchbase.core.mapping.Field;
 import org.springframework.data.couchbase.core.mapping.id.GeneratedValue;
 
-import java.text.SimpleDateFormat;
-import java.util.Base64;
 import javax.validation.constraints.NotNull;
+import java.util.Base64;
 
 import static org.springframework.data.couchbase.core.mapping.id.GenerationStrategy.UNIQUE;
 
@@ -19,30 +20,40 @@ import static org.springframework.data.couchbase.core.mapping.id.GenerationStrat
 @Setter
 @ToString
 @Document
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Post {
     @GeneratedValue(strategy = UNIQUE)
     @Id
     @Field
     private String id;
+
     @Field
     @NotNull
     private String text;
+
     @Field
     @NotNull
     private String title;
+
     @Field
     @NotNull
     private String courseId;
+
     @Field
     private String day;
+
     @Field
     private String month;
+
     @Field
     private String year;
+
     @Field
     private boolean isActivity;
+
     @Field
     private String type;
+
     @Field
     private String fileName;
 
@@ -50,15 +61,17 @@ public class Post {
     private String contentType;
 
     @Field
-    @JsonIgnore
     private byte[] content;
 
-//    public byte[] getContent() {
-//        return Base64.getDecoder().decode(content);
+//    @JsonIgnore
+//    public String getDecodedContent() {
+//        System.out.println("content  11111: " + content);
+//        return content != null ? new String(content) : null;
 //    }
 //
-//    public void setContent(byte[] content) {
-//        this.content = content;
+//    @JsonIgnore
+//    public void setDecodedContent(String decodedContent) {
+//        this.content = decodedContent != null ? decodedContent.getBytes() : null;
 //    }
 
     @JsonProperty("base64Content")
@@ -66,9 +79,9 @@ public class Post {
         return content != null ? Base64.getEncoder().encodeToString(content) : null;
     }
 
+    @JsonProperty("base64Content")
     public void setBase64Content(String base64Content) {
+        System.out.println("base64Content 222222: " + base64Content);
         this.content = base64Content != null ? Base64.getDecoder().decode(base64Content) : null;
     }
-
-
 }

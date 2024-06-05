@@ -35,17 +35,29 @@ public class PostTemplateService implements PostService {
     @Override
     public List<Post> findAll() {
         // findAll but conversing content field from type [java.lang.String] to type [byte]
-        for (Post post : template.findByQuery(Post.class).all()) {
-            post.setContent(post.getContent());
-        }
+//        for (Post post : template.findByQuery(Post.class).all()) {
+//            post.setContent(post.getContent());
+//        }
         return template.findByQuery(Post.class).all();
+    }
+
+    @Override
+    public Post findById(String id) {
+        if(template.findById(Post.class).one(id) == null) {
+            System.out.println("Post doesn't exist!");
+            throw new IllegalStateException("Post doesn't exist!");
+        } else {
+            System.out.println("Post exists!");
+            Post post = template.findById(Post.class).one(id);
+            return post;
+        }
     }
 
     public List<Post> myFindAll() {
         // findAll but conversing content field from type [java.lang.String] to type [byte]
-        for (Post post : template.findByQuery(Post.class).all()) {
-            post.setContent(post.getContent());
-        }
+//        for (Post post : template.findByQuery(Post.class).all()) {
+//            post.setContent(post.getContent());
+//        }
         return template.findByQuery(Post.class).all();
     }
 

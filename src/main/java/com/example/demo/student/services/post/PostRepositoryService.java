@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -24,7 +25,17 @@ public class PostRepositoryService {
     }
 
     public Optional<Post> getPost(String id){
-        return postRepository.findById(id);
+        System.out.println("PostRepositoryService.getPost");
+//        System.out.println(postRepository.findById(id));
+//        return postRepository.findById(id);
+        Optional<Post> post = postRepository.findById(id);
+        if (post.isPresent()) {
+            if (post.get().getContent() != null) {
+                post.get().setBase64Content(Base64.getEncoder().encodeToString(post.get().getContent()));
+            }
+        }
+        System.out.println(post);
+        return post;
     }
     public void create(Post post) {
         postRepository.save(post);
@@ -36,9 +47,15 @@ public class PostRepositoryService {
         postRepository.delete(post);
     }
     public List<Post> getPosts() {
+        List<Post> posts = postRepository.findAll();
         System.out.println("PostRepositoryService.getPosts");
-        System.out.println(postRepository.findAll());
-        return (List<Post>) postRepository.findAll();
+        posts.forEach(post -> {
+            if (post.getContent() != null) {
+                post.setBase64Content(Base64.getEncoder().encodeToString(post.getContent()));
+            }
+        });
+        System.out.println(posts);
+        return posts;
     }
     public void addNewPost(Post post) {
         postRepository.save(post);
