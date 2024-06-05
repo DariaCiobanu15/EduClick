@@ -61,27 +61,20 @@ public class Post {
     private String contentType;
 
     @Field
-    private byte[] content;
+    private String content;
 
-//    @JsonIgnore
-//    public String getDecodedContent() {
-//        System.out.println("content  11111: " + content);
-//        return content != null ? new String(content) : null;
-//    }
-//
-//    @JsonIgnore
-//    public void setDecodedContent(String decodedContent) {
-//        this.content = decodedContent != null ? decodedContent.getBytes() : null;
-//    }
-
-    @JsonProperty("base64Content")
-    public String getBase64Content() {
-        return content != null ? Base64.getEncoder().encodeToString(content) : null;
+    @JsonIgnore
+    public byte[] getDecodedContent() {
+        return content != null ? content.getBytes() : null;
     }
 
-    @JsonProperty("base64Content")
-    public void setBase64Content(String base64Content) {
-        System.out.println("base64Content 222222: " + base64Content);
-        this.content = base64Content != null ? Base64.getDecoder().decode(base64Content) : null;
+    @JsonIgnore
+    public void setDecodedContent(byte[] decodedContent) {
+        this.content = decodedContent != null ? new String(decodedContent) : null;
+    }
+
+    @JsonIgnore
+    public byte[] getDecodedContentBytes() {
+        return content != null ? Base64.getDecoder().decode(content) : null;
     }
 }

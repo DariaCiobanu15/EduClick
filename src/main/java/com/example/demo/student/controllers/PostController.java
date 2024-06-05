@@ -4,11 +4,15 @@ import com.example.demo.student.componentObj.Post;
 import com.example.demo.student.services.course.CourseRepositoryService;
 import com.example.demo.student.services.post.PostRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.io.IOException;
@@ -51,7 +55,7 @@ public class PostController {
 
     @PostMapping(path = "/addPost")
     @PreAuthorize("hasRole('ROLE_teacher') || hasRole('ROLE_admin')")
-    public Post addPost( @RequestParam("text") String text,
+    public Post addPost(@RequestParam("text") String text,
                         @RequestParam("title") String title,
                         @RequestParam("courseId") String courseId,
                         @RequestParam("day") String day,
@@ -60,6 +64,7 @@ public class PostController {
                         @RequestParam("type") String type,
                         @RequestParam("isActivity") boolean isActivity,
                         @RequestParam("contentType") Optional<String> contentType,
+                        @RequestParam("fileName") Optional<String> fileName,
                         @RequestParam("content") Optional<String> content) throws IOException {
         Post post = new Post();
         post.setText(text);
@@ -72,14 +77,16 @@ public class PostController {
         post.setActivity(isActivity);
 
         if (content.isPresent() && !content.get().isEmpty()) {
-            post.setFileName(title);
-            post.setContentType(String.valueOf(contentType));
-            post.setBase64Content(content.get());
+            post.setFileName(fileName.orElse(null));
+            System.out.println(post.getFileName());
+            post.setContentType(contentType.orElse(null));
+            post.setContent(content.get());
+            System.out.println(post.getContent());
+            System.out.println(post.getContent().getClass());
         } else {
             post.setContent(null);
         }
-        //post.setBase64Content(content.get());
-
+        System.out.println(post);
         postRepositoryService.addNewPost(post);
         courseRepositoryService.addPostIdToCourse(courseId, post.getId());
         return post;
@@ -102,15 +109,32 @@ public class PostController {
 
     @GetMapping(path = "/{courseId}/getPosts")
     public ResponseEntity<List<Post>> getPostsFromCourse(@PathVariable("courseId") String courseId) {
-        List<String> postsIds = courseRepositoryService.getCourse(courseId).get().getPostsIds();
-        System.out.println(postsIds);
+        List<String> postsIds = courseRepositoryService.getCourse(courseId).orElseThrow(() -> new IllegalStateException("Course doesn't exist!")).getPostsIds();
         List<Post> posts = new ArrayList<>();
         for (String postId : postsIds) {
-            System.out.println(postId);
-            Optional<Post> post = postRepositoryService.getPost(postId);
-            System.out.println(post);
-            post.ifPresent(posts::add);
+            postRepositoryService.getPost(postId).ifPresent(posts::add);
         }
         return ResponseEntity.ok(posts);
     }
+
+    @GetMapping(path = "/{courseId}/{postId}/getContent")
+    public ResponseEntity<ByteArrayResource> getPostContent(@PathVariable("courseId") String courseId, @PathVariable("postId") String postId) {
+        Optional<Post> optionalPost = postRepositoryService.getPost(postId);
+        if (optionalPost.isPresent()) {
+            Post post = optionalPost.get();
+            byte[] content = post.getDecodedContentBytes(); // Use a method to get decoded bytes
+            if (content != null) {
+                ByteArrayResource resource = new ByteArrayResource(content);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.parseMediaType(post.getContentType()));
+                headers.setContentDisposition(ContentDisposition.inline().filename(post.getFileName()).build());
+                return ResponseEntity.ok()
+                        .headers(headers)
+                        .contentLength(content.length)
+                        .body(resource);
+            }
+        }
+        return ResponseEntity.notFound().build();
+    }
+
 }

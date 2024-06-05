@@ -25,41 +25,29 @@ public class PostRepositoryService {
     }
 
     public Optional<Post> getPost(String id){
-        System.out.println("PostRepositoryService.getPost");
-//        System.out.println(postRepository.findById(id));
-//        return postRepository.findById(id);
-        Optional<Post> post = postRepository.findById(id);
-        if (post.isPresent()) {
-            if (post.get().getContent() != null) {
-                post.get().setBase64Content(Base64.getEncoder().encodeToString(post.get().getContent()));
-            }
-        }
-        System.out.println(post);
-        return post;
+        return postRepository.findById(id);
     }
+
     public void create(Post post) {
         postRepository.save(post);
     }
+
     public void update(Post post) {
         postRepository.save(post);
     }
+
     public void delete(Post post) {
         postRepository.delete(post);
     }
+
     public List<Post> getPosts() {
-        List<Post> posts = postRepository.findAll();
-        System.out.println("PostRepositoryService.getPosts");
-        posts.forEach(post -> {
-            if (post.getContent() != null) {
-                post.setBase64Content(Base64.getEncoder().encodeToString(post.getContent()));
-            }
-        });
-        System.out.println(posts);
-        return posts;
+        return postRepository.findAll();
     }
+
     public void addNewPost(Post post) {
         postRepository.save(post);
     }
+
     public void deletePost(String id) {
         boolean exists = postRepository.existsById(id);
         if(!exists) {
@@ -67,6 +55,4 @@ public class PostRepositoryService {
         }
         postRepository.deleteById(id);
     }
-
-
 }
