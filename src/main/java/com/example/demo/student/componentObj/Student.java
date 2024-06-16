@@ -8,6 +8,7 @@ import org.springframework.data.couchbase.core.mapping.id.GeneratedValue;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.data.couchbase.core.mapping.id.GenerationStrategy.UNIQUE;
 
@@ -40,5 +41,11 @@ public class Student {
     private UniversityData universityData;
     @Field
     private List<String> courseIds; // the courses that the student is enrolled at
+
+    @Field
+    private List<String> activitiesIds;
+
+    @Field
+    private Map<String, Integer> activityGrades;
 
 }

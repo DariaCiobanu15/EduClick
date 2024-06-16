@@ -81,4 +81,14 @@ public class StudyHallRepositoryService {
             studyHallRepository.save(s);
         }
     }
+
+    public String getName(String studyHallId) {
+        Optional<StudyHall> studyHall = studyHallRepository.findById(studyHallId);
+        if (studyHall.isPresent()) {
+            return studyHall.get().getName();
+        } else {
+            throw new IllegalStateException("Study Hall with id " + studyHallId + " does not exist");
+        }
+
+    }
 }

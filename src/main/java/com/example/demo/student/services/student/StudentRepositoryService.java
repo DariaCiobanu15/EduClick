@@ -1,6 +1,7 @@
 package com.example.demo.student.services.student;
 
 import com.example.demo.student.componentObj.Course;
+import com.example.demo.student.componentObj.Post;
 import com.example.demo.student.componentObj.Student;
 import com.example.demo.student.repositories.student.StudentRepository;
 import lombok.Getter;
@@ -74,5 +75,17 @@ public class StudentRepositoryService {
         }
         studentRepository.deleteById(studentId);
     }
+
+    public void addActivityToStudent(String studentId, String activityId) {
+        Student student = studentRepository.findById(studentId).
+                orElseThrow(() -> new IllegalStateException("Student doesn't exist!"));
+        if(student.getActivitiesIds() == null) {
+            student.setActivitiesIds(new ArrayList<String>());
+        }
+        List<String> activities = student.getActivitiesIds();
+        activities.add(activityId);
+        studentRepository.save(student);
+    }
+
 
 }

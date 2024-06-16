@@ -118,13 +118,11 @@ public class BookingController {
                         booking.setLab(true);
 
                         bookingRepositoryService.create(booking);
-//                        System.out.println("Created booking: ");
-//                        System.out.println(booking);
                         courseRepositoryService.addBookingToCourse(booking.getCourseId(), booking.getId());
                         studyHallRepositoryService.addBookingToStudyHall(hall.getId(), booking.getId());
                         return booking;
                     } else {
-//                        System.out.println("No suitable hall found");
+                        System.out.println("No suitable hall found");
                     }
                 }
             }
@@ -165,6 +163,7 @@ public class BookingController {
                 Booking courseBooking = bookingRepositoryService.getBooking(courseBookingId)
                         .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
                 if (courseBooking.getWeekday().equals(weekday) && courseBooking.getHour() == hour) {
+                    System.out.println("Teacher is not available");
                     return false;
                 }
             }
@@ -179,10 +178,12 @@ public class BookingController {
                 Booking labBooking = bookingRepositoryService.getBooking(labBookingId)
                         .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
                 if (labBooking.getWeekday().equals(weekday) && labBooking.getHour() == hour) {
+                    System.out.println("Teacher is not available");
                     return false;
                 }
             }
         }
+        System.out.println("Teacher is available");
         return true;
     }
 
@@ -213,6 +214,7 @@ public class BookingController {
                 Booking booking = bookingRepositoryService.getBooking(bookingId)
                         .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
                 if (booking.getWeekday().equals(weekday) && booking.getHour() == hour) {
+                    System.out.println("Group is not available");
                     return false;
                 }
             }
@@ -225,6 +227,7 @@ public class BookingController {
         for (Booking booking : bookings) {
             if(booking.getSubGroup() != null) {
                 if (booking.getSubGroup().equals(subGroup) && booking.getWeekday().equals(weekday) && booking.getHour() == hour) {
+                    System.out.println("Subgroup is not available");
                     return false;
                 }
             }
@@ -283,5 +286,82 @@ public class BookingController {
 
         return details;
     }
+
+    @GetMapping(path = "/{bookingId}/getOtherAvailableTimeSlots")
+    public List<Map<String, String>> getOtherAvailableTimeSlots(@PathVariable("bookingId") String bookingId) {
+        Booking booking = bookingRepositoryService.getBooking(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
+        Course course = courseRepositoryService.getCourse(booking.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
+        Teacher teacher = teacherRepositoryService.getTeacher(booking.getTeacherId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid teacher ID"));
+
+        List<Map<String, String>> availableTimeSlots = new ArrayList<>();
+        String[] weekdays = {"Luni", "Marți", "Miercuri", "Joi", "Vineri"};
+        for (String weekday : weekdays) {
+            for (int hour = 8; hour < 18; hour += 2) {
+                if (isTeacherAvailable(teacher, weekday, hour)
+                        && isGroupFromYearAvailable(course.getGroup(), course.getYear(), weekday, hour) &&
+                        isSubGroupAvailable(booking.getSubGroup(), weekday, hour)) {
+                    Map<String, String> timeSlot = new HashMap<>();
+                    timeSlot.put("weekday", weekday);
+                    timeSlot.put("hour", Integer.toString(hour));
+                    availableTimeSlots.add(timeSlot);
+                }
+            }
+        }
+        return availableTimeSlots;
+    }
+
+    @GetMapping(path = "/{bookingId}/getFreeStudyHalls")
+    public List<Map<String, String>> getFreeStudyHalls(@PathVariable("bookingId") String bookingId, String weekday, int hour) {
+        Booking booking = bookingRepositoryService.getBooking(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
+        Course course = courseRepositoryService.getCourse(booking.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
+
+        List<StudyHall> suitableHalls = studyHallRepositoryService.getAllByCapacityGreaterThanEqual(course.getStudentsIds().size());
+        suitableHalls.sort(Comparator.comparingInt(StudyHall::getCapacity));
+        List<Map<String, String>> freeHalls = new ArrayList<>();
+        for (StudyHall studyHall : suitableHalls) {
+            if (isHallAvailable(studyHall, weekday, hour)) {
+                Map<String, String> hallDetails = new HashMap<>();
+                hallDetails.put("hallId", studyHall.getId());
+                hallDetails.put("hallName", studyHall.getName());
+                freeHalls.add(hallDetails);
+            }
+        }
+        return freeHalls;
+    }
+
+    @PutMapping(path = "/{bookingId}/updateLabBooking")
+    public ResponseEntity<String> updateLabBooking(@PathVariable("bookingId") String bookingId,  @RequestBody Map<String, Object> requestBody) {
+        String newStudyHallId = (String) requestBody.get("newStudyHallId");
+        String weekday = (String) requestBody.get("weekday");
+        int hour = (int) requestBody.get("hour");
+
+        Booking booking = bookingRepositoryService.getBooking(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
+        Course course = courseRepositoryService.getCourse(booking.getCourseId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
+        StudyHall studyHall = studyHallRepositoryService.getStudyHall(newStudyHallId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid study hall ID"));
+        Teacher teacher = teacherRepositoryService.getTeacher(booking.getTeacherId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid teacher ID"));
+
+        if (isHallAvailable(studyHall, weekday, hour) && isTeacherAvailable(teacher, weekday, hour)
+                && isSubGroupAvailable(booking.getSubGroup(), weekday, hour) && isGroupFromYearAvailable(course.getGroup(), course.getYear(), weekday, hour)) {
+            booking.setStudyHallId(newStudyHallId);
+            booking.setWeekday(weekday);
+            booking.setHour(hour);
+            bookingRepositoryService.update(booking);
+            return new ResponseEntity<>("Booking updated successfully", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Booking could not be updated", HttpStatus.BAD_REQUEST);
+        }
+
+
+    }
+
 
 }

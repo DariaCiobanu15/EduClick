@@ -52,4 +52,9 @@ public class StudyHallController {
         studyHallRepositoryService.deleteStudyHallById(studyHallId);
     }
 
+    @GetMapping(path = "/{studyHallId}/getName")
+    public String getStudyHallName(@PathVariable("studyHallId") String studyHallId){
+        return studyHallRepositoryService.getName(studyHallId);
+    }
+
 }

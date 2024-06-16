@@ -1,6 +1,7 @@
 package com.example.demo.student.services.post;
 
 import com.example.demo.student.componentObj.Post;
+import com.example.demo.student.componentObj.StudentUploadedContent;
 import com.example.demo.student.repositories.post.PostRepository;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,5 +55,18 @@ public class PostRepositoryService {
             throw new IllegalStateException("Post doesn't exist!");
         }
         postRepository.deleteById(id);
+    }
+
+    public void addStudentUploadedContentToPost(String postId, StudentUploadedContent studentUploadedContent) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new IllegalStateException("Post doesn't exist!"));
+        List<StudentUploadedContent> studentUploadedContents = post.getStudentUploadedContents();
+        if(post.getStudentUploadedContents() == null) {
+            studentUploadedContents = List.of(studentUploadedContent);
+        } else {
+            studentUploadedContents.add(studentUploadedContent);
+        }
+        post.setStudentUploadedContents(studentUploadedContents);
+        postRepository.save(post);
+
     }
 }

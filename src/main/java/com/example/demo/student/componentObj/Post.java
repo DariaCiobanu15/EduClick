@@ -11,6 +11,8 @@ import org.springframework.data.couchbase.core.mapping.id.GeneratedValue;
 
 import javax.validation.constraints.NotNull;
 import java.util.Base64;
+import java.util.List;
+import java.util.Map;
 
 import static org.springframework.data.couchbase.core.mapping.id.GenerationStrategy.UNIQUE;
 
@@ -62,6 +64,12 @@ public class Post {
 
     @Field
     private String content;
+
+    @Field
+    private Integer gradeWeight;
+
+    @Field
+    private List<StudentUploadedContent> studentUploadedContents;
 
     @JsonIgnore
     public byte[] getDecodedContent() {

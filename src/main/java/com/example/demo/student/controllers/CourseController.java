@@ -248,4 +248,31 @@ public class CourseController {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
+    @GetMapping(path = "/{id}/myCourses")
+    public List<String> getMyCourses(@PathVariable("id") String id) {
+        List<Course> courses = courseRepositoryService.getCourses();
+        List<String> myCourses = new ArrayList<>();
+        for (Course course : courses) {
+            if (course.getStudentsIds().contains(id)) {
+                myCourses.add(course.getId());
+            }
+            if(course.getTeacherId().equals(id)) {
+                myCourses.add(course.getId());
+            }
+            if(course.getLabTeacherIds().contains(id)) {
+                myCourses.add(course.getId());
+            }
+        }
+        return myCourses;
+    }
+
+    @GetMapping(path = "/{courseId}/getName")
+    public ResponseEntity<String> getCourseName(@PathVariable("courseId") String courseId){
+        Optional<Course> courseOptional = courseRepositoryService.getCourse(courseId);
+        if (!courseOptional.isPresent()) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(courseOptional.get().getName(), HttpStatus.OK);
+    }
+
 }
