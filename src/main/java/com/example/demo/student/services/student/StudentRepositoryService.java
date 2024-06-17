@@ -77,6 +77,7 @@ public class StudentRepositoryService {
     }
 
     public void addActivityToStudent(String studentId, String activityId) {
+        System.out.println("studentId: " + studentId);
         Student student = studentRepository.findById(studentId).
                 orElseThrow(() -> new IllegalStateException("Student doesn't exist!"));
         if(student.getActivitiesIds() == null) {

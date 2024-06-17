@@ -79,6 +79,7 @@ public class PostController {
         post.setType(type);
         post.setActivity(isActivity);
         post.setGradeWeight(gradeWeight.orElse(null));
+        post.setStudentUploadedContents(new ArrayList<>());
 
         if (content.isPresent() && !content.get().isEmpty()) {
             post.setFileName(fileName.orElse(null));
@@ -164,6 +165,7 @@ public class PostController {
         List<String> activitiesIds = studentRepositoryService.getStudent(studentId).orElseThrow(() -> new IllegalStateException("Student doesn't exist!")).getActivitiesIds();
         List<Post> activities = new ArrayList<>();
         for (String activityId : activitiesIds) {
+            System.out.println(activityId);
             Post post = postRepositoryService.getPost(activityId).orElseThrow(() -> new IllegalStateException("Post doesn't exist!"));
             List<StudentUploadedContent> studentUploadedContents = post.getStudentUploadedContents();
             if (studentUploadedContents == null || studentUploadedContents.isEmpty()) {
@@ -171,6 +173,7 @@ public class PostController {
             } else {
                 boolean isDone = studentUploadedContents.stream()
                         .noneMatch(content -> content.getStudentId().equals(studentId));
+                System.out.println(isDone);
                 if (isDone) {
                     activities.add(post);
                 }
@@ -183,7 +186,8 @@ public class PostController {
     public ResponseEntity<String> uploadContentForActivity(@PathVariable("studentId") String studentId,
                                                            @RequestParam("postId") String postId,
                                                            @RequestParam("content") String content,
-                                                           @RequestParam("contentType") String contentType
+                                                           @RequestParam("contentType") String contentType,
+                                                           @RequestParam("fileName") String fileName
                                                            ) throws IOException {
         Post post = postRepositoryService.getPost(postId).orElseThrow(() -> new IllegalStateException("Post doesn't exist!"));
         if (!post.isActivity()) {
@@ -194,6 +198,7 @@ public class PostController {
         if(content != null && !content.isEmpty()) {
             studentUploadedContent.setContent(content);
             studentUploadedContent.setContentType(contentType);
+            studentUploadedContent.setFileName(fileName);
 
         } else {
             studentUploadedContent.setContent(null);
@@ -222,7 +227,7 @@ public class PostController {
             ByteArrayResource resource = new ByteArrayResource(content);
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.parseMediaType(studentUploadedContent.getContentType()));
-            headers.setContentDisposition(ContentDisposition.inline().filename(post.getFileName()).build());
+            headers.setContentDisposition(ContentDisposition.inline().filename(studentUploadedContent.getFileName()).build());
             return ResponseEntity.ok()
                     .headers(headers)
                     .contentLength(content.length)

@@ -78,7 +78,6 @@ public class BookingController {
                         booking.setWeekday(weekday);
 
                         bookingRepositoryService.create(booking);
-//                        System.out.println(booking.getId());
                         courseRepositoryService.addBookingToCourse(booking.getCourseId(), booking.getId());
                         studyHallRepositoryService.addBookingToStudyHall(hall.getId(), booking.getId());
                         return booking;
@@ -100,7 +99,6 @@ public class BookingController {
         suitableHalls.sort(Comparator.comparingInt(StudyHall::getCapacity));
         Integer year = course.getYear();
         String group = course.getGroup();
-//        System.out.println(group);
         String labTeacher = booking.getTeacherId();
         Teacher teacher = teacherRepositoryService.getTeacher(labTeacher)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid teacher ID"));

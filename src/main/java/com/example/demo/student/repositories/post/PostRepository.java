@@ -14,6 +14,5 @@ public interface PostRepository extends CrudRepository<Post, String>{
     Optional<Post> findById(String postId);
 
 
-    // findAll but conversing content field from type [java.lang.String] to type [byte]
     public List<Post> findAll();
 }
