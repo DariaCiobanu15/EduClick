@@ -85,4 +85,5 @@ public class Post {
     public byte[] getDecodedContentBytes() {
         return content != null ? Base64.getDecoder().decode(content) : null;
     }
+
 }

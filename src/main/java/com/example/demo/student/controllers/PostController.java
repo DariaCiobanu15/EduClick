@@ -135,7 +135,7 @@ public class PostController {
         Optional<Post> optionalPost = postRepositoryService.getPost(postId);
         if (optionalPost.isPresent()) {
             Post post = optionalPost.get();
-            byte[] content = post.getDecodedContentBytes(); // Use a method to get decoded bytes
+            byte[] content = post.getDecodedContentBytes();
             if (content != null) {
                 ByteArrayResource resource = new ByteArrayResource(content);
                 HttpHeaders headers = new HttpHeaders();
