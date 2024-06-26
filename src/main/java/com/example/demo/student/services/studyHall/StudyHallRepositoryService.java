@@ -91,4 +91,8 @@ public class StudyHallRepositoryService {
         }
 
     }
+
+    public void update(StudyHall studyHall) {
+        studyHallRepository.save(studyHall);
+    }
 }

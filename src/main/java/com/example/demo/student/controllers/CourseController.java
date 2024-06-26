@@ -259,9 +259,6 @@ public class CourseController {
             if(course.getTeacherId().equals(id)) {
                 myCourses.add(course.getId());
             }
-            if(course.getLabTeacherIds().contains(id)) {
-                myCourses.add(course.getId());
-            }
         }
         return myCourses;
     }

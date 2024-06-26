@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,5 +67,9 @@ public class PostRepositoryService {
         post.setStudentUploadedContents(studentUploadedContents);
         postRepository.save(post);
 
+    }
+
+    public List<Post> getPostsByCourseId(String courseId) {
+        return postRepository.findPostsByCourseId(courseId);
     }
 }

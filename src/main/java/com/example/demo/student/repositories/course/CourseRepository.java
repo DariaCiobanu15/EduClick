@@ -14,4 +14,6 @@ public interface CourseRepository extends CrudRepository<Course, String> {
     List<Course> findAllByGroup(String groupId);
 
     List<Course> findAllByGroupAndYear(String group, Integer year);
+
+    List<Course> findAllByTeacherId(String teacherId);
 }

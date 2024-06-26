@@ -182,6 +182,52 @@ public class PostController {
         return ResponseEntity.ok(activities);
     }
 
+    @GetMapping(path = "/{teacherId}/getActivitiesToGrade")
+    public ResponseEntity<List<Post>> getActivitiesToGrade(@PathVariable("teacherId") String teacherId) {
+        List<String> coursesIds = courseRepositoryService.getCoursesIdsByTeacherId(teacherId);
+        System.out.println(coursesIds);
+        List<Post> activities = new ArrayList<>();
+        for (String courseId : coursesIds) {
+            List<String> postsIds = courseRepositoryService.getCourse(courseId).orElseThrow(() -> new IllegalStateException("Course doesn't exist!")).getPostsIds();
+            if(postsIds == null) {
+                continue;
+            }
+            for (String postId : postsIds) {
+                Post post = postRepositoryService.getPost(postId).orElseThrow(() -> new IllegalStateException("Post doesn't exist!"));
+                if (post.isActivity()) {
+                    List<StudentUploadedContent> studentUploadedContents = post.getStudentUploadedContents();
+                    if (studentUploadedContents != null && !studentUploadedContents.isEmpty()) {
+                        boolean isDone = studentUploadedContents.stream()
+                                .anyMatch(content -> content.getGrade() == null);
+                        if (isDone) {
+                            activities.add(post);
+                        }
+                    }
+                }
+            }
+        }
+        return ResponseEntity.ok(activities);
+    }
+
+    @GetMapping(path = "/{teacherId}/getAllTeacherActivities")
+    public ResponseEntity<List<Post>> getAllTeacherActivities(@PathVariable("teacherId") String teacherId) {
+        List<String> coursesIds = courseRepositoryService.getCoursesIdsByTeacherId(teacherId);
+        List<Post> activities = new ArrayList<>();
+        for (String courseId : coursesIds) {
+            List<String> postsIds = courseRepositoryService.getCourse(courseId).orElseThrow(() -> new IllegalStateException("Course doesn't exist!")).getPostsIds();
+            if(postsIds == null) {
+                continue;
+            }
+            for (String postId : postsIds) {
+                Post post = postRepositoryService.getPost(postId).orElseThrow(() -> new IllegalStateException("Post doesn't exist!"));
+                if (post.isActivity()) {
+                    activities.add(post);
+                }
+            }
+        }
+        return ResponseEntity.ok(activities);
+    }
+
     @PostMapping(path = "/{studentId}/UploadContentForActivity")
     public ResponseEntity<String> uploadContentForActivity(@PathVariable("studentId") String studentId,
                                                            @RequestParam("postId") String postId,

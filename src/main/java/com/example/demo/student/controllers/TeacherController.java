@@ -1,7 +1,12 @@
 package com.example.demo.student.controllers;
 
+import com.example.demo.student.componentObj.Booking;
 import com.example.demo.student.componentObj.Course;
+import com.example.demo.student.componentObj.StudyHall;
 import com.example.demo.student.componentObj.Teacher;
+import com.example.demo.student.services.booking.BookingRepositoryService;
+import com.example.demo.student.services.course.CourseRepositoryService;
+import com.example.demo.student.services.studyHall.StudyHallRepositoryService;
 import com.example.demo.student.services.teacher.TeacherRepositoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,10 +23,16 @@ import java.util.Optional;
 @RequestMapping(path = "api/v1/student/teacher")
 public class TeacherController {
     private final TeacherRepositoryService teacherRepositoryService;
+    private final CourseRepositoryService courseRepositoryService;
+    private final BookingRepositoryService bookingRepositoryService;
+    private final StudyHallRepositoryService studyHallRepositoryService;
 
     @Autowired
-    public TeacherController(TeacherRepositoryService teacherRepositoryService) {
+    public TeacherController(TeacherRepositoryService teacherRepositoryService, CourseRepositoryService courseRepositoryService, BookingRepositoryService bookingRepositoryService, StudyHallRepositoryService studyHallRepositoryService) {
         this.teacherRepositoryService = teacherRepositoryService;
+        this.courseRepositoryService = courseRepositoryService;
+        this.bookingRepositoryService = bookingRepositoryService;
+        this.studyHallRepositoryService = studyHallRepositoryService;
     }
 
     @GetMapping(path = "/all")
@@ -43,7 +54,45 @@ public class TeacherController {
     @PreAuthorize("hasRole('ROLE_admin')")
     @DeleteMapping(path = "{teacherId}/delete")
     public void deleteTeacher(@PathVariable("teacherId") String teacherId) {
-        teacherRepositoryService.deleteCourse(teacherId);
+        Teacher teacher = teacherRepositoryService.getTeacher(teacherId)
+                .orElseThrow(() -> new IllegalStateException("teacher with id " + teacherId + " does not exist"));
+
+        if (teacher.getCourseIds() != null) {
+            for (String courseId : teacher.getCourseIds()) {
+                Optional<Course> courseOpt = courseRepositoryService.getCourse(courseId);
+                if (courseOpt.isPresent()) {
+                    Course course = courseOpt.get();
+                    course.setTeacherId(null);
+                    courseRepositoryService.update(course);
+                }
+            }
+        }
+
+        if (teacher.getLabIds() != null) {
+            for (String labId : teacher.getLabIds()) {
+                Optional<Course> labOpt = courseRepositoryService.getCourse(labId);
+                if (labOpt.isPresent()) {
+                    Course lab = labOpt.get();
+                    lab.getLabTeacherIds().removeIf(id -> id.equals(teacherId));
+                    courseRepositoryService.update(lab);
+                }
+            }
+        }
+
+        List<Booking> bookings = bookingRepositoryService.getBookings();
+        for (Booking booking : bookings) {
+            if (booking.getTeacherId().equals(teacherId)) {
+                Optional<StudyHall> studyHallOpt = studyHallRepositoryService.getStudyHall(booking.getStudyHallId());
+                if (studyHallOpt.isPresent()) {
+                    StudyHall studyHall = studyHallOpt.get();
+                    studyHall.getBookingIds().remove(booking.getId());
+                    studyHallRepositoryService.update(studyHall);
+                    bookingRepositoryService.deleteBooking(booking.getId());
+                }
+            }
+        }
+
+        teacherRepositoryService.deleteTeacher(teacherId);
     }
     @PreAuthorize("hasRole('ROLE_admin')")
     @PutMapping(path = "{teacherId}/update")
@@ -107,6 +156,25 @@ public class TeacherController {
             List<String> ids = teacher.getCourseIds();
             System.out.println(ids);
             return ids;
+        } else {
+            return null;
+        }
+    }
+
+    @GetMapping(path = "/{teacherId}/getMyCourses")
+    public List<Course> getMyCourses(@PathVariable("teacherId") String teacherId){
+        Optional<Teacher> optionalTeacher = teacherRepositoryService.getTeacher(teacherId);
+        if (optionalTeacher.isPresent()) {
+            Teacher teacher = optionalTeacher.get();
+            List<String> ids = teacher.getCourseIds();
+            List<Course> courses = new ArrayList<>();
+            for (String id : ids) {
+                Optional<Course> course = courseRepositoryService.getCourse(id);
+                if (course.isPresent()) {
+                    courses.add(course.get());
+                }
+            }
+            return courses;
         } else {
             return null;
         }

@@ -122,4 +122,14 @@ public class CourseRepositoryService {
             throw new IllegalStateException("course doesn't exist!");
         }
     }
+
+    public List<String> getCoursesIdsByTeacherId(String teacherId) {
+        List<Course> courses = courseRepository.findAllByTeacherId(teacherId);
+        List<String> courseIds = new ArrayList<>();
+        for(Course c : courses) {
+            courseIds.add(c.getId());
+        }
+        return courseIds;
+    }
+
 }

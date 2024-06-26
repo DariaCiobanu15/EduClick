@@ -15,4 +15,6 @@ public interface PostRepository extends CrudRepository<Post, String>{
 
 
     public List<Post> findAll();
+
+    public List<Post> findPostsByCourseId(String courseId);
 }

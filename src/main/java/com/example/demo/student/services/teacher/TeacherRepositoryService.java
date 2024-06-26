@@ -53,4 +53,12 @@ public class TeacherRepositoryService {
         }
         teacherRepository.deleteById(id);
     }
+
+    public void deleteTeacher(String teacherId) {
+        boolean exists = teacherRepository.existsById(teacherId);
+        if(!exists) {
+            throw new IllegalStateException("teacher doesn't exist!");
+        }
+        teacherRepository.deleteById(teacherId);
+    }
 }
