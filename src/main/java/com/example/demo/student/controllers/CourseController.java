@@ -67,6 +67,53 @@ public class CourseController {
     @DeleteMapping(path = "{courseId}/delete")
     public void deleteCourse(@PathVariable("courseId") String courseId){
         courseRepositoryService.deleteCourse(courseId);
+        List<Student> students = studentRepositoryService.getStudents();
+        for (Student student : students) {
+            if (student.getCourseIds().contains(courseId)) {
+                student.getCourseIds().remove(courseId);
+                studentRepositoryService.update(student);
+            }
+            List<String> activitiesIds = student.getActivitiesIds();
+            for (String activityId : activitiesIds) {
+                Optional<Post> activity = postRepositoryService.getPost(activityId);
+                if(activity.isPresent()) {
+                    if (activity.get().getCourseId().equals(courseId)) {
+                        student.getActivitiesIds().remove(activityId);
+                        studentRepositoryService.update(student);
+                    }
+                }
+            }
+        }
+        List<Teacher> teachers = teacherRepositoryService.getTeachers();
+        for (Teacher teacher : teachers) {
+            if (teacher.getCourseIds().contains(courseId)) {
+                teacher.getCourseIds().remove(courseId);
+                teacherRepositoryService.update(teacher);
+            }
+            if(teacher.getLabIds().contains(courseId)){
+                teacher.getLabIds().remove(courseId);
+                teacherRepositoryService.update(teacher);
+            }
+        }
+        List<Booking> bookings = bookingRepositoryService.getBookings();
+        for (Booking booking : bookings) {
+            if (booking.getCourseId().equals(courseId)) {
+                bookingRepositoryService.deleteBooking(booking.getId());
+                List<StudyHall> studyHalls = studyHallRepositoryService.getStudyHalls();
+                for (StudyHall studyHall : studyHalls) {
+                    if (studyHall.getBookingIds().contains(booking.getId())) {
+                        studyHall.getBookingIds().remove(booking.getId());
+                        studyHallRepositoryService.update(studyHall);
+                    }
+                }
+            }
+        }
+        List<Post> posts = postRepositoryService.getPosts();
+        for (Post post : posts) {
+            if (post.getCourseId().equals(courseId)) {
+                postRepositoryService.deletePost(post.getId());
+            }
+        }
     }
     @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
     @PutMapping(path = "/update/{courseId}")

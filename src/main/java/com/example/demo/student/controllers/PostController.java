@@ -1,8 +1,6 @@
 package com.example.demo.student.controllers;
 
-import com.example.demo.student.componentObj.GradeInfo;
-import com.example.demo.student.componentObj.Post;
-import com.example.demo.student.componentObj.StudentUploadedContent;
+import com.example.demo.student.componentObj.*;
 import com.example.demo.student.services.course.CourseRepositoryService;
 import com.example.demo.student.services.post.PostRepositoryService;
 import com.example.demo.student.services.student.StudentRepositoryService;
@@ -113,10 +111,26 @@ public class PostController {
         return ResponseEntity.ok("Post updated successfully.");
     }
 
-    @PutMapping(path = "/{postId}/delete")
+    @DeleteMapping(path = "/{postId}/delete")
     @PreAuthorize("hasRole('ROLE_admin') || hasRole('ROLE_teacher')")
     public ResponseEntity<String> deletePost(@PathVariable("postId") String postId) {
         postRepositoryService.deletePost(postId);
+        List<Course> courses = courseRepositoryService.getCourses();
+        for (Course course : courses) {
+            List<String> postsIds = course.getPostsIds();
+            if (postsIds != null && postsIds.contains(postId)) {
+                postsIds.remove(postId);
+                courseRepositoryService.update(course);
+            }
+        }
+        List<Student> students = studentRepositoryService.getStudents();
+        for (Student student : students) {
+            List<String> activitiesIds = student.getActivitiesIds();
+            if (activitiesIds != null && activitiesIds.contains(postId)) {
+                activitiesIds.remove(postId);
+                studentRepositoryService.update(student);
+            }
+        }
         return ResponseEntity.ok("Post deleted successfully.");
     }
 
@@ -153,6 +167,9 @@ public class PostController {
     @GetMapping(path = "/{studentId}/getActivities")
     public ResponseEntity<List<Post>> getActivities(@PathVariable("studentId") String studentId) {
         List<String> activitiesIds = studentRepositoryService.getStudent(studentId).orElseThrow(() -> new IllegalStateException("Student doesn't exist!")).getActivitiesIds();
+        if(activitiesIds == null) {
+            return ResponseEntity.ok(new ArrayList<>());
+        }
         List<Post> activities = new ArrayList<>();
         for (String activityId : activitiesIds) {
             postRepositoryService.getPost(activityId).ifPresent(activities::add);

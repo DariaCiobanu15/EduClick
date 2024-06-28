@@ -1,9 +1,6 @@
 package com.example.demo.student.controllers;
 
-import com.example.demo.student.componentObj.Booking;
-import com.example.demo.student.componentObj.Course;
-import com.example.demo.student.componentObj.StudyHall;
-import com.example.demo.student.componentObj.Teacher;
+import com.example.demo.student.componentObj.*;
 import com.example.demo.student.repositories.studyHall.StudyHallRepository;
 import com.example.demo.student.services.booking.BookingRepositoryService;
 import com.example.demo.student.services.course.CourseRepositoryService;
@@ -26,13 +23,15 @@ public class BookingController {
     private final CourseRepositoryService courseRepositoryService;
     private final StudyHallRepositoryService studyHallRepositoryService;
     private final TeacherRepositoryService teacherRepositoryService;
+    private final StudentRepositoryService studentRepositoryService;
 
     @Autowired
-    public BookingController(BookingRepositoryService bookingRepositoryService, CourseRepositoryService courseRepositoryService, StudyHallRepositoryService studyHallRepositoryService, TeacherRepositoryService teacherRepositoryService) {
+    public BookingController(BookingRepositoryService bookingRepositoryService, CourseRepositoryService courseRepositoryService, StudyHallRepositoryService studyHallRepositoryService, TeacherRepositoryService teacherRepositoryService, StudentRepositoryService studentRepositoryService) {
         this.bookingRepositoryService = bookingRepositoryService;
         this.courseRepositoryService = courseRepositoryService;
         this.studyHallRepositoryService = studyHallRepositoryService;
         this.teacherRepositoryService = teacherRepositoryService;
+        this.studentRepositoryService = studentRepositoryService;
     }
 
     @GetMapping(path = "/all")
@@ -95,19 +94,28 @@ public class BookingController {
         System.out.println(booking);
         Course course = courseRepositoryService.getCourse(booking.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
-        List<StudyHall> suitableHalls = studyHallRepositoryService.getAllByCapacityGreaterThanEqual(course.getStudentsIds().size());
+        String subGroup = booking.getSubGroup();
+        int subgroupCapacity = 0;
+        for (String studentId : course.getStudentsIds()) {
+            Student student = studentRepositoryService.getStudent(studentId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid student ID"));
+            if (student.getUniversityData().getSubGroup().equals(subGroup)) {
+                subgroupCapacity++;
+            }
+        }
+        List<StudyHall> suitableHalls = studyHallRepositoryService.getAllByCapacityGreaterThanEqual(subgroupCapacity);
         suitableHalls.sort(Comparator.comparingInt(StudyHall::getCapacity));
         Integer year = course.getYear();
         String group = course.getGroup();
         String labTeacher = booking.getTeacherId();
         Teacher teacher = teacherRepositoryService.getTeacher(labTeacher)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid teacher ID"));
-        String subGroup = booking.getSubGroup();
+
 
         String[] weekdays = {"Luni", "Marți", "Miercuri", "Joi", "Vineri"};
         for (String weekday : weekdays) {
             for (StudyHall hall : suitableHalls) {
-                for (int hour = 8; hour < 18; hour += 2) {
+                for (int hour = 8; hour < 20; hour += 2) {
                     if (isHallAvailable(hall, weekday, hour) && isTeacherAvailable(teacher, weekday, hour)
                             && isSubGroupAvailable(subGroup, weekday, hour) && isGroupFromYearAvailable(group, year, weekday, hour)) {
                         booking.setStudyHallId(hall.getId());
@@ -318,7 +326,15 @@ public class BookingController {
         Course course = courseRepositoryService.getCourse(booking.getCourseId())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid course ID"));
 
-        List<StudyHall> suitableHalls = studyHallRepositoryService.getAllByCapacityGreaterThanEqual(course.getStudentsIds().size());
+        int subgroupCapacity = 0;
+        for (String studentId : course.getStudentsIds()) {
+            Student student = studentRepositoryService.getStudent(studentId)
+                    .orElseThrow(() -> new IllegalArgumentException("Invalid student ID"));
+            if (student.getUniversityData().getSubGroup().equals(booking.getSubGroup())) {
+                subgroupCapacity++;
+            }
+        }
+        List<StudyHall> suitableHalls = studyHallRepositoryService.getAllByCapacityGreaterThanEqual(subgroupCapacity);
         suitableHalls.sort(Comparator.comparingInt(StudyHall::getCapacity));
         List<Map<String, String>> freeHalls = new ArrayList<>();
         for (StudyHall studyHall : suitableHalls) {
@@ -357,8 +373,15 @@ public class BookingController {
         } else {
             return new ResponseEntity<>("Booking could not be updated", HttpStatus.BAD_REQUEST);
         }
+    }
 
-
+    @GetMapping(path = "/{bookingId}/getStudyHallName")
+    public String getStudyHallName(@PathVariable("bookingId") String bookingId) {
+        Booking booking = bookingRepositoryService.getBooking(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid booking ID"));
+        StudyHall hall = studyHallRepositoryService.getStudyHall(booking.getStudyHallId())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid study hall ID"));
+        return hall.getName();
     }
 
 
