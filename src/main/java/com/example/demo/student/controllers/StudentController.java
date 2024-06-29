@@ -152,10 +152,32 @@ public class StudentController {
                     throw new IllegalStateException("student already in course");
                 } else {
                     ids.add(course.getId());
+                    if(course.getPostsIds() != null){
+                        for(String postId: course.getPostsIds()){
+                            Post post = postRepositoryService.getPost(postId).get();
+                            if(post.isActivity()){
+                                List<String> studentActivitiesIds = student.getActivitiesIds();
+                                if(studentActivitiesIds == null){
+                                    studentActivitiesIds = new ArrayList<>();
+                                }
+                                studentActivitiesIds.add(postId);
+                            }
+                        }
+                    }
                 }
             }
             student.setCourseIds(ids);
             studentRepositoryService.update(student);
+
+            for (Course course : courseList) {
+                List<String> studentsIds = course.getStudentsIds();
+                if (studentsIds == null) {
+                    studentsIds = new ArrayList<>();
+                }
+                studentsIds.add(studentId);
+                course.setStudentsIds(studentsIds);
+                courseRepositoryService.update(course);
+            }
         } else {
             return;
         }
